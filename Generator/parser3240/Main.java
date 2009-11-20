@@ -18,6 +18,9 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        
+        // just testing subversion commit
+        
 //        ParserGenerator parserGen = new ParserGenerator();
 //        ILexer lexer = new Lexer();
 //        String fileContents = "";
