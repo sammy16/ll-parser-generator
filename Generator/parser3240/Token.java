@@ -6,19 +6,19 @@
 package parser3240;
 
 /**
- *
+ * The Token class is used to store token symbols. This class and the Nonterminal
+ * class are both subclasses of Symbol, which allows us to do things
+ * like create an ArrayList<Symbol>, which can hold the right-hand side of
+ * production rules after they are read in from a grammar file.
  * @author mpn
  */
-public class Token {
-    private String name;
+public class Token extends Symbol {
     
-    public Token(String nameIn) { name = nameIn; }
+    public Token(String nameIn) { super(nameIn); }
     
-    public String getName() { return name; }
-    public void setName(String nameIn) { name = nameIn; }
-    
-    public boolean compareTo (Object otherObj) {
+    @Override
+    public boolean equals (Object otherObj) {
         Token T2 = (Token) otherObj;
-        return (this.name.equals(T2.getName()));
+        return (super.getName().equals(T2.getName()));
     }
 }
