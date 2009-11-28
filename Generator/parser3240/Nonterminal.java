@@ -15,10 +15,11 @@ package parser3240;
  * @author mpn
  */
 public class Nonterminal extends Symbol {
-   
+   private final String type= "Nonterminal";
     // NOTE: Pass nameIn in the form "<exp>" rather than "exp",
     // just as a matter of convention.
     public Nonterminal(String nameIn) { super(nameIn); }
+    public String getType(){ return type;}
     
     @Override
     public boolean equals (Object otherObj) {
