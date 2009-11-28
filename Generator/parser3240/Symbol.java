@@ -26,4 +26,10 @@ public class Symbol {
         Symbol S2 = (Symbol) otherObj;
         return (S2.getName().equals(this.getName()));
     }
+    
+    @Override
+    public String toString()
+    {
+        return name; 
+    }
 }
