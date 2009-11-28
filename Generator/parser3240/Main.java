@@ -17,9 +17,11 @@ public class Main {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
     	System.out.println("Hello world");
     	
+        ParserGenerator pg = new ParserGenerator();
+        //pg.feed("/Users/Jurojin/CS3240/Generator/parser3240/grammar.txt");
         
         // just testing subversion commit
         
