@@ -13,8 +13,10 @@ package parser3240;
  * @author mpn
  */
 public class Token extends Symbol {
+    private final String type= "Token";
     
-    public Token(String nameIn) { super(nameIn); }
+    public Token(String nameIn) { super(nameIn);}
+    public String getType(){return type;}
     
     @Override
     public boolean equals (Object otherObj) {
