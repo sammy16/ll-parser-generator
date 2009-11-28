@@ -5,6 +5,7 @@
 
 package parser3240;
 import java.util.*;
+import JLex.*;
 
 /**
  *
@@ -19,7 +20,11 @@ public class Main {
      */
     public static void main(String[] args) throws Exception {
     	System.out.println("Hello world");
-    	
+    	// if you parameterize this main function
+    	// This is the Main method of JLex which allows us to generate 
+    	// a scanner
+    	// JLex.Main.main(arg)
+	
         ParserGenerator pg = new ParserGenerator();
         //pg.feed("/Users/Jurojin/CS3240/Generator/parser3240/grammar.txt");
         
