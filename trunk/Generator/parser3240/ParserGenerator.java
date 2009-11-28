@@ -5,6 +5,7 @@
 
 package parser3240;
 import java.util.*;
+import java.io.*;
 
 /**
  * ParserGenerator contains the meat of the code for our project. The Main
@@ -42,23 +43,104 @@ public class ParserGenerator {
     // perhaps rather than grammarFile, this should take a single
     // line as input? That way you could add more rules later, rather
     // than doing it all as a single glob.
-    public void feed(String grammarFile) {
-        // read line 1 - %Tokens
-        // (store them in the private variable tokenList)
-        // read line 2 - %Non-terminals
-        // (store them in the private variable nonterminalList)
-        // read line 3 - %Start
-        // (store in the private variable startSymbol)
-        // read line 4 - %Rules
-        // (and discard)
-        // read each production rule
-        // run removeLeftRecursion and removeCommonPrefix on each production rule
-        //
-        // add each production rule to the rules ArrayList
-        //
+    public void feed(String grammarFile)throws Exception {
+        // read in the grammar file
+        BufferedReader grFileBuf = new BufferedReader(new FileReader(grammarFile));
+        String toks; //string to hold the terminals on the first line of the grammar file
+        String nonTerms; //string to hold nonterminals on second line of the grammar file
+        String grule=""; //holds each grammar rule as it is read from the grammar file
+        ArrayList<String> rmLeft; //array to hold the rules after they have had thier left recursion removed
+        String rmCommon;  //the grammar with both left recusion removed and common prefix
+        
+        toks = grFileBuf.readLine();    //terminals
+        Scanner genScanner = new Scanner(toks); //a scanner for breaking up the tokens
+        
+        //add tokens to token list
+        while(genScanner.hasNext())
+        {
+            tokenList.add(new Token(genScanner.next()));
+        }
+        //test
+        //System.out.println("token list = " + tokenList);
+        
+        nonTerms = grFileBuf.readLine();       //nonterminals
+        genScanner = new Scanner(nonTerms);
+        
+        //add the nonterminals to terminal list
+        while(genScanner.hasNext())
+        {
+            nonterminalList.add(new Nonterminal(genScanner.next()));
+        }
+        
+        //test
+        //System.out.println("List of nonterminals = "+ nonterminalList);
+        
+        //grFileBuf.readLine(); //read uneccessary line %Rules
+        grule = grFileBuf.readLine();
+        startSymbol = new Symbol(grule.substring(0,grule.indexOf('>')));
+        
+        //takes each grammar rule one at a time and removes left recursion
+        //then adds the new rules created from the recusion removal to a list representing the new grammar 
+        /*do
+        {
+            genScanner = new Scanner(grule);
+            //remove left recursion from the grammar rule, expect to get a list of new grammar rules back
+            rmLeft.addAll(removeLeftRecursion(grule));
+            
+        }while((grule = grFileBuf.readLine()) != null);
+        
+        //once left recursion has been removed from the grammar then common prefix must be fixed
+        rmCommon = removeCommonPrefix(rmLeft);
+   
+        //finally production rules are created from each rule in the grammar list and added to rules list
+        for(int i = 0;i<rmCommon.length();i++)
+        {
+            rules.addAll(getProductionRules(rmCommon));
+        }*/
+        
+        
         // also add each rule to the allRules hashtable, so we have them
         // bucketed by nonterminal, which will be useful when computing the
         // first() and follow() sets.
+    }
+    
+    //Takes a grammar rule in the for of a string as a parameter and produces/returns a list of production rules
+    public ArrayList<ProductionRule> getProductionRules(String grammarRule)
+    {
+        Scanner gScan = new Scanner(grammarRule);
+        Scanner symScan;
+        Nonterminal nonTerm; //the symbol on the left side of the arrow for the rule
+        String rightSyms;
+        String sym;
+        nonTerm = new Nonterminal(gScan.useDelimiter("->").next());  //get the nonterminal on left side of the arrow
+        ArrayList<Symbol> rSideSyms;     //list of symbols that go on the right side of the production rule
+        ArrayList<ProductionRule> productions = new ArrayList<ProductionRule>();
+ 
+        //grabs the sections of the rule bordered by "|" and takes those symbols to create a production rule
+        //Example grammar rule = <S> -> <T> d | b | c  the first production rule made will be <S> -> <T> d
+       while((rightSyms = gScan.useDelimiter("|").next())!=null)
+        {
+           rSideSyms = new ArrayList<Symbol>();
+           symScan = new Scanner(rightSyms);
+           //traverses symbols
+           while((sym = symScan.next())!=null)
+           {
+               System.out.println(sym);
+               //checks to see if the symbol is a nonterminal or a terminal then adds
+               //that symbol to the right side of the production rule
+               if(tokenList.contains(sym))
+               {
+                 rSideSyms.add(new Token(sym));
+               }
+               else if(nonterminalList.contains(sym))
+               {
+                   rSideSyms.add(new Nonterminal(sym));
+               }
+           }
+           productions.add(new ProductionRule(nonTerm,rSideSyms));
+        }
+        
+        return productions;
     }
 
 //    public ParsingTable buildParsingTable() {
