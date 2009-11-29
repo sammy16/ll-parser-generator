@@ -50,7 +50,7 @@ public class ParserGenerator {
         String nonTerms; //string to hold nonterminals on second line of the grammar file
         String grule=""; //holds each grammar rule as it is read from the grammar file
         ArrayList<String> rmLeft; //array to hold the rules after they have had thier left recursion removed
-        String rmCommon;  //the grammar with both left recusion removed and common prefix
+        ArrayList<String> rmCommon;  //the grammar with both left recusion removed and common prefix
         
         toks = grFileBuf.readLine();    //terminals
         Scanner genScanner = new Scanner(toks); //a scanner for breaking up the tokens
@@ -71,14 +71,13 @@ public class ParserGenerator {
         {
             nonterminalList.add(new Nonterminal(genScanner.next()));
         }
-        
         //test
         //System.out.println("List of nonterminals = "+ nonterminalList);
         
         //grFileBuf.readLine(); //read uneccessary line %Rules
         grule = grFileBuf.readLine();
         startSymbol = new Symbol(grule.substring(0,grule.indexOf('>')));
-        
+     
         //takes each grammar rule one at a time and removes left recursion
         //then adds the new rules created from the recusion removal to a list representing the new grammar 
         /*do
@@ -95,7 +94,7 @@ public class ParserGenerator {
         //finally production rules are created from each rule in the grammar list and added to rules list
         for(int i = 0;i<rmCommon.length();i++)
         {
-            rules.addAll(getProductionRules(rmCommon));
+            rules.addAll(getProductionRules(rmCommon.get(i));
         }*/
         
         
@@ -104,7 +103,7 @@ public class ParserGenerator {
         // first() and follow() sets.
     }
     
-    //Takes a grammar rule in the for of a string as a parameter and produces/returns a list of production rules
+    //Takes a grammar rule in the form of a string as a parameter and produces/returns a list of production rules
     public ArrayList<ProductionRule> getProductionRules(String grammarRule)
     {
         Scanner gScan = new Scanner(grammarRule).useDelimiter("->");
@@ -134,11 +133,11 @@ public class ParserGenerator {
                //System.out.println(sym);
                //checks to see if the symbol is a nonterminal or a terminal then adds
                //that symbol to the right side of the production rule
-               if(tokenList.contains(sym))
+               if(tokenList.contains((new Symbol(sym))))
                {
                  rSideSyms.add(new Token(sym));
                }
-               else if(nonterminalList.contains(sym))
+               else if(nonterminalList.contains((new Symbol(sym))))
                {
                    rSideSyms.add(new Nonterminal(sym));
                }
