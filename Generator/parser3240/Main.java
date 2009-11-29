@@ -25,7 +25,9 @@ public class Main {
     	// JLex.Main.main(arg)
 	
         ParserGenerator pg = new ParserGenerator();
+        //testing
         //pg.feed("/Users/Jurojin/CS3240/Generator/parser3240/grammar.txt");
+        //pg.getProductionRules("<T> -> a b | k");
         
         // just testing subversion commit
         
