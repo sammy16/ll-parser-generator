@@ -14,7 +14,7 @@ package parser3240;
  * are responsible for actually implementing the equals() method.
  * @author mpn
  */
-public class Symbol {
+public class Symbol{
     private String name;
     
     public Symbol(String nameIn) { name = nameIn; }
@@ -22,11 +22,12 @@ public class Symbol {
     public String getName() { return name; }
     public void setName(String nameIn) { name = nameIn; }
     
+    @Override
     public boolean equals (Object otherObj) {
         Symbol S2 = (Symbol) otherObj;
         return (S2.getName().equals(this.getName()));
     }
-    
+
     @Override
     public String toString()
     {
