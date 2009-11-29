@@ -107,25 +107,31 @@ public class ParserGenerator {
     //Takes a grammar rule in the for of a string as a parameter and produces/returns a list of production rules
     public ArrayList<ProductionRule> getProductionRules(String grammarRule)
     {
-        Scanner gScan = new Scanner(grammarRule);
+        Scanner gScan = new Scanner(grammarRule).useDelimiter("->");
         Scanner symScan;
         Nonterminal nonTerm; //the symbol on the left side of the arrow for the rule
         String rightSyms;
         String sym;
-        nonTerm = new Nonterminal(gScan.useDelimiter("->").next());  //get the nonterminal on left side of the arrow
+        nonTerm = new Nonterminal(gScan.next());  //get the nonterminal on left side of the arrow
         ArrayList<Symbol> rSideSyms;     //list of symbols that go on the right side of the production rule
         ArrayList<ProductionRule> productions = new ArrayList<ProductionRule>();
- 
+        gScan = new Scanner(gScan.next());
         //grabs the sections of the rule bordered by "|" and takes those symbols to create a production rule
         //Example grammar rule = <S> -> <T> d | b | c  the first production rule made will be <S> -> <T> d
-       while((rightSyms = gScan.useDelimiter("|").next())!=null)
+        gScan.useDelimiter("\\|");
+        while(gScan.hasNext())
         {
+           rightSyms = gScan.next();
+           //test
+           //System.out.println("The right hand symbol is "+ rightSyms);
            rSideSyms = new ArrayList<Symbol>();
            symScan = new Scanner(rightSyms);
            //traverses symbols
-           while((sym = symScan.next())!=null)
+           while(symScan.hasNext())
            {
-               System.out.println(sym);
+               sym = symScan.next();
+               //test
+               //System.out.println(sym);
                //checks to see if the symbol is a nonterminal or a terminal then adds
                //that symbol to the right side of the production rule
                if(tokenList.contains(sym))
