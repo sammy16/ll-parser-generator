@@ -26,8 +26,11 @@ public class Main {
 	
         ParserGenerator pg = new ParserGenerator();
         //testing
-        //pg.feed("/Users/Jurojin/CS3240/Generator/parser3240/grammar.txt");
-        //pg.getProductionRules("<T> -> a b | k");
+       //pg.feed("/Users/Jurojin/CS3240/Generator/parser3240/grammar.txt");
+        //ArrayList<ProductionRule> pr;
+        //pr= pg.getProductionRules("statement-list -> + - | (");
+        //System.out.println(pr);
+        
         
         // just testing subversion commit
         
