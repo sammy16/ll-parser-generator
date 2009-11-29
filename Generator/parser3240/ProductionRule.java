@@ -25,4 +25,10 @@ public class ProductionRule {
     
     public void setNonterminal(Nonterminal NIn) { N = NIn; }
     public void setRule(ArrayList<Symbol> ruleIn) { rule = ruleIn; }
+    
+    @Override
+    public String toString()
+    {
+        return N + "->" + rule; 
+    }
 }
