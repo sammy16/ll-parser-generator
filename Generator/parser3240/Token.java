@@ -20,7 +20,11 @@ public class Token extends Symbol {
     
     @Override
     public boolean equals (Object otherObj) {
-        Token T2 = (Token) otherObj;
+        if(!(otherObj instanceof Token))
+        {
+        	return false;
+        }
+    	Token T2 = (Token) otherObj;
         return (super.getName().equals(T2.getName()));
     }
 }
