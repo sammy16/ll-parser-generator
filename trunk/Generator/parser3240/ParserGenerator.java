@@ -28,6 +28,7 @@ public class ParserGenerator {
     private HashMap<Nonterminal, ArrayList<Token>> firstSets;
     private HashMap<Nonterminal, ArrayList<Token>> followSets;
     private HashMap<ProductionRule, ArrayList<Token>> predictSets;
+    private ParsingTable LL1table;
     
     public ParserGenerator() {
         nonterminalList = new ArrayList<Nonterminal>();
@@ -101,17 +102,14 @@ public class ParserGenerator {
             
         }while((grule = grFileBuf.readLine()) != null);
         
-        allRules = removeLeftRecursion(gRules); //RemoveLeftRecursion returns the rules hashed against their nonterminals.
-        //test       
+        allRules = removeLeftRecursion(gRules); //RemoveLeftRecursion returns the rules hashed against their nonterminals.    
         
         //once left recursion has been removed from the grammar then common prefix must be fixed
         allRules = removeCommonPrefix(allRules);
         System.out.println(allRules);
-        //finally production rules are created from each rule in the grammar list and added to rules list
-       /* for(int i = 0;i< rmCommon.size();i++)
-        {
-            rules.addAll(getProductionRules(rmCommon.get(i)));
-        }*/
+        
+        //now that common prefix is done we build the parsing table
+        buildParsingTable();
        
     }
     
@@ -411,28 +409,44 @@ public class ParserGenerator {
         return productions;
     }
 
-//    public ParsingTable buildParsingTable() {
-//        // compute first() sets
-//        // (create hashtable from each nonterminal to its first() set)
-//        System.out.println("Computing First sets...");
-//        computeFirstSets();
-//        
-//        // compute follow() sets
-//        // (create hashtable from each nonterminal to its follow() set)
-//        System.out.println("Computing Follow sets...");
-//        computeFollowSets();
-//        
-//        // compute predict() sets using first() and follow() sets
-//        // (create hashtable from each production rule to its predict() set)
-//        System.out.println("Computing Predict sets...");
-//        computePredictSets();
-//        
-//        // initialize new ParsingTable
-//        
-//        // iterate through [rule, predict_set] key-value pairs in hashtable
-//        // and add entry in parse table for each
-//        return null;
-//    }
+    public ParsingTable buildParsingTable() {
+        // compute first() sets
+        // (create hashtable from each nonterminal to its first() set)
+        System.out.println("Computing First sets...");
+        //computeFirstSets();
+        
+        // compute follow() sets
+        // (create hashtable from each nonterminal to its follow() set)
+        System.out.println("Computing Follow sets...");
+        //computeFollowSets();
+        
+        // compute predict() sets using first() and follow() sets
+        // (create hashtable from each production rule to its predict() set)
+        System.out.println("Computing Predict sets...");
+        //computePredictSets();
+        
+        // initialize new ParsingTable
+        LL1table = new ParsingTable(tokenList.size(),nonterminalList.size(),tokenList,nonterminalList);
+
+        //iterator for the rules of the predict set
+        Collection ruls = predictSets.keySet();
+        Iterator r = ruls.iterator();
+        
+        // iterate through [rule, predict_set] key-value pairs in hashtable
+        ProductionRule nonT;
+        ArrayList<Token> tks;
+        while(r.hasNext())
+        {
+            nonT = (ProductionRule)r.next();
+            tks = predictSets.get(nonT);   //list of tokens for each rule
+            // iterate through tokens of predict set and add entry in parse table for the production rule
+            for(Token t: tks)
+            {
+                LL1table.addEntry(nonT.getNonterminal(), t, nonT);
+            }
+        }
+        return null;
+    }
 //    
 //    private ProductionRule removeLeftRecursion(ProductionRule rule) {
 //        return null;
