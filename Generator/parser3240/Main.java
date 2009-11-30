@@ -25,12 +25,18 @@ public class Main {
     	// JLex.Main.main(arg)
 	
         ParserGenerator pg = new ParserGenerator();
+        
+        //hiron grammar test
+//        pg.feed("C:\\Users\\Hiron\\Documents\\Gatech09Fall\\Compilers\\Final Project\\leftfac.ll1");
+        
+        //pg.feed("/Users/Jurojin/CS3240/Generator/parser3240/grammar.txt");
+
         //testing
        //pg.feed("/Users/Jurojin/CS3240/Generator/parser3240/grammar.txt");
         //ArrayList<ProductionRule> pr;
         //pr= pg.getProductionRules("statement-list -> + - | (");
         //System.out.println(pr);
-        
+
         
         // just testing subversion commit
         

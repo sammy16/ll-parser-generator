@@ -52,6 +52,7 @@ public class ParserGenerator {
         ArrayList<String> rmLeft; //array to hold the rules after they have had thier left recursion removed
         ArrayList<String> rmCommon;  //the grammar with both left recusion removed and common prefix
         
+        
         toks = grFileBuf.readLine();    //terminals
         Scanner genScanner = new Scanner(toks); //a scanner for breaking up the tokens
         
@@ -77,17 +78,27 @@ public class ParserGenerator {
         //grFileBuf.readLine(); //read uneccessary line %Rules
         grule = grFileBuf.readLine();
         startSymbol = new Symbol(grule.substring(0,grule.indexOf('>')));
-     
         //takes each grammar rule one at a time and removes left recursion
         //then adds the new rules created from the recusion removal to a list representing the new grammar 
-        /*do
-        {
-            genScanner = new Scanner(grule);
-            //remove left recursion from the grammar rule, expect to get a list of new grammar rules back
-            rmLeft.addAll(removeLeftRecursion(grule));
+        
+        //gather all the raw grammar rules
+        ArrayList<String> gRules = new ArrayList<String>();
+        do
+        {	
+        	if(grule == null)
+        	{
+        		break;
+        	}
+        	
+        	if(!grule.startsWith("%"))
+        	{
+        		gRules.add(grule);
+        	}
             
         }while((grule = grFileBuf.readLine()) != null);
         
+        rmLeft = removeLeftRecursion(gRules);
+        /*
         //once left recursion has been removed from the grammar then common prefix must be fixed
         rmCommon = removeCommonPrefix(rmLeft);
    
@@ -103,7 +114,13 @@ public class ParserGenerator {
         // first() and follow() sets.
     }
     
-    //Takes a grammar rule in the form of a string as a parameter and produces/returns a list of production rules
+
+    private ArrayList<String> removeLeftRecursion(ArrayList<String> gRules) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	//Takes a grammar rule in the for of a string as a parameter and produces/returns a list of production rules
     public ArrayList<ProductionRule> getProductionRules(String grammarRule)
     {
         Scanner gScan = new Scanner(grammarRule).useDelimiter("->");
