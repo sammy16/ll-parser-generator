@@ -27,7 +27,7 @@ public class Main {
         ParserGenerator pg = new ParserGenerator();
         
         //hiron grammar test
-        pg.feed("C:\\Users\\Hiron\\Documents\\Gatech09Fall\\Compilers\\Final Project\\leftfac.ll1");
+//        pg.feed("C:\\Users\\Hiron\\Documents\\Gatech09Fall\\Compilers\\Final Project\\leftfac.ll1");
         
         //pg.feed("/Users/Jurojin/CS3240/Generator/parser3240/grammar.txt");
 

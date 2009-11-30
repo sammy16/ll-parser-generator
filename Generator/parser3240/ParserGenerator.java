@@ -102,12 +102,11 @@ public class ParserGenerator {
         }while((grule = grFileBuf.readLine()) != null);
         
         allRules = removeLeftRecursion(gRules); //RemoveLeftRecursion returns the rules hashed against their nonterminals.
-        //test
-       
+        //test       
         
         //once left recursion has been removed from the grammar then common prefix must be fixed
         allRules = removeCommonPrefix(allRules);
-   
+        System.out.println(allRules);
         //finally production rules are created from each rule in the grammar list and added to rules list
        /* for(int i = 0;i< rmCommon.size();i++)
         {
@@ -121,6 +120,7 @@ public class ParserGenerator {
 			HashMap<Nonterminal, ArrayList<ProductionRule>> map) {
 		// TODO Auto-generated method stub
     
+    	boolean madeChange = false;
     	ArrayList<Nonterminal> keyList = new ArrayList<Nonterminal>();
     	keyList.addAll(map.keySet());
     	for (Nonterminal key : keyList )
@@ -129,12 +129,43 @@ public class ParserGenerator {
     		ArrayList<Symbol> cp = new ArrayList<Symbol>();
     		ArrayList<ProductionRule> commonPrefRules = getMaximalCommonPrefixProductionRules(matchingRules, cp);
     		if(commonPrefRules.size() > 1){ // if we've found some production rules that have commonPrefix
-    			//replace with A => cp Beta1 | cp Beta2 |...
+    			madeChange = true;
+    			//replace with A => cp Beta1 | cp Beta2 |... We use the hashcode for the star
     			// with A => cp A*
     			//		A* =>Beta1 | Beta2 | EPSILON
+    			Nonterminal aStar = new Nonterminal(key.getName() + key.getName().hashCode());
+    			
+    			//create the new rule that replaces all the production rules associated with the common prefix
+    			ArrayList<Symbol> replacementRule = new ArrayList<Symbol>();
+    			replacementRule.addAll(cp);
+    			replacementRule.add(aStar);
+    			ProductionRule replacementPR = new ProductionRule(key, replacementRule);
+    			matchingRules.removeAll(commonPrefRules);
+    			matchingRules.add(replacementPR);
+    			
+    			ArrayList<ProductionRule> aStarPRS = new ArrayList<ProductionRule>();
+    			for(ProductionRule r : commonPrefRules){
+    				ArrayList<Symbol> newStarRule = new ArrayList<Symbol>();
+    				for(int i = cp.size(); i < r.getRule().size(); i++){
+    					newStarRule.add(r.getRule().get(i));
+    				}
+    				if(newStarRule.size() == 0){
+    					newStarRule.add(Symbol.EPSILON);
+    				}
+    				ProductionRule newStarPR = new ProductionRule(aStar, newStarRule);
+    				aStarPRS.add(newStarPR);
+    			}
+    			map.put(aStar, aStarPRS);
     		}
     	}
-		return null;
+    	
+		if(madeChange){
+			removeCommonPrefix(map);
+		}
+		else{
+			return map;
+		}
+		return map; // should never get here
 	}
     
     private ArrayList<ProductionRule> getMaximalCommonPrefixProductionRules(ArrayList<ProductionRule> rules,
@@ -158,7 +189,9 @@ public class ParserGenerator {
     	}
     	
     	ArrayList<Symbol> maxPrefix = prefixOfMaximalLength(foundPrefix);
-    	cp.addAll(maxPrefix);
+    	if(maxPrefix != null){
+    		cp.addAll(maxPrefix);
+    	}
     	return getProductionRulesStartingWith(maxPrefix, rules);
     }
     
