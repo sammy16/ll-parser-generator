@@ -52,9 +52,9 @@ public class ParserGenerator {
         ArrayList<String> rmLeft; //array to hold the rules after they have had thier left recursion removed
         ArrayList<String> rmCommon;  //the grammar with both left recusion removed and common prefix
         
-        
         toks = grFileBuf.readLine();    //terminals
         Scanner genScanner = new Scanner(toks); //a scanner for breaking up the tokens
+        genScanner.next();  //consume unecessary %Tokens word
         
         //add tokens to token list
         while(genScanner.hasNext())
@@ -62,10 +62,12 @@ public class ParserGenerator {
             tokenList.add(new Token(genScanner.next()));
         }
         //test
-        //System.out.println("token list = " + tokenList);
+        System.out.println("token list = " + tokenList);
         
         nonTerms = grFileBuf.readLine();       //nonterminals
         genScanner = new Scanner(nonTerms);
+        
+        genScanner.next();  //consume unecessary %Non-terminals word
         
         //add the nonterminals to terminal list
         while(genScanner.hasNext())
@@ -73,11 +75,13 @@ public class ParserGenerator {
             nonterminalList.add(new Nonterminal(genScanner.next()));
         }
         //test
-        //System.out.println("List of nonterminals = "+ nonterminalList);
+        System.out.println("List of nonterminals = "+ nonterminalList);
         
         //grFileBuf.readLine(); //read uneccessary line %Rules
         grule = grFileBuf.readLine();
-        startSymbol = new Symbol(grule.substring(0,grule.indexOf('>')));
+        
+        startSymbol = new Symbol(grule.substring(grule.indexOf(" ")+1,grule.indexOf('>')+1));
+        System.out.println("Start symbole = "+ startSymbol);
         //takes each grammar rule one at a time and removes left recursion
         //then adds the new rules created from the recusion removal to a list representing the new grammar 
         
@@ -98,7 +102,8 @@ public class ParserGenerator {
         }while((grule = grFileBuf.readLine()) != null);
         
         allRules = removeLeftRecursion(gRules); //RemoveLeftRecursion returns the rules hashed against their nonterminals.
-        System.out.println(allRules);
+        //test
+        System.out.println("Rules after Left recursion removal: \n"+allRules);
         
         //once left recursion has been removed from the grammar then common prefix must be fixed
         //rmCommon = removeCommonPrefix(rmLeft);
