@@ -103,10 +103,10 @@ public class ParserGenerator {
         
         allRules = removeLeftRecursion(gRules); //RemoveLeftRecursion returns the rules hashed against their nonterminals.
         //test
-        System.out.println("Rules after Left recursion removal: \n"+allRules);
+       
         
         //once left recursion has been removed from the grammar then common prefix must be fixed
-        //rmCommon = removeCommonPrefix(rmLeft);
+        allRules = removeCommonPrefix(allRules);
    
         //finally production rules are created from each rule in the grammar list and added to rules list
        /* for(int i = 0;i< rmCommon.size();i++)
@@ -114,28 +114,108 @@ public class ParserGenerator {
             rules.addAll(getProductionRules(rmCommon.get(i)));
         }*/
        
-        //take the production rules and bucket them in the hashtable by nonterminal
-//        Nonterminal nontermSym;
-//        ArrayList<ProductionRule> prRules;
-//        int n=0;
-//        while(n<rules.size())
-//        {
-//            nontermSym = rules.get(n).getNonterminal();
-//            prRules = new ArrayList<ProductionRule>();      //list of production rules that belong to the same nonterminal
-//            while(rules.get(n).getNonterminal().getName().equals(nontermSym.getName()))
-//            {
-//                prRules.add(rules.get(n));
-//                n++; 
-//                if(n>= rules.size())
-//                {
-//                    break;
-//                }
-//            }
-//            allRules.put(nontermSym, prRules);
-//        }
     }
     
-    ///Hashes the rules on the basis of the nonterminal of the rule
+    ///Takes in the Hashed Production Rules that have had Immediate Left Recursion removed
+    private HashMap<Nonterminal, ArrayList<ProductionRule>> removeCommonPrefix(
+			HashMap<Nonterminal, ArrayList<ProductionRule>> map) {
+		// TODO Auto-generated method stub
+    
+    	ArrayList<Nonterminal> keyList = new ArrayList<Nonterminal>();
+    	keyList.addAll(map.keySet());
+    	for (Nonterminal key : keyList )
+    	{	
+    		ArrayList<ProductionRule> matchingRules = map.get(key);
+    		System.out.println(getMaximalCommonPrefixProductionRules(matchingRules));
+    	}
+		return null;
+	}
+    
+    private ArrayList<ProductionRule> getMaximalCommonPrefixProductionRules(ArrayList<ProductionRule> rules){
+    	
+    	if(rules.size() == 1 || rules.size() == 0){
+    		return new ArrayList<ProductionRule>(); // if there can't be matches, return an empty list
+    	}
+    	
+    	
+    	ArrayList<ArrayList<Symbol>> foundPrefix = new ArrayList<ArrayList<Symbol>>();
+    	for(ProductionRule outer : rules){
+    		for(ProductionRule inner : rules){    		
+    			ArrayList<Symbol> commonPrefix = new ArrayList<Symbol>();
+    			getCommonPrefix(commonPrefix, outer.getRule(), inner.getRule());
+    			if(!containsPrefix(foundPrefix, commonPrefix)){
+	    			if(commonPrefix.size() > 0){   				
+	    				foundPrefix.add(commonPrefix);
+	    			}
+    			}
+    		}
+    	}
+    	
+    	ArrayList<Symbol> maxPrefix = prefixOfMaximalLength(foundPrefix);
+    	return getProductionRulesStartingWith(maxPrefix, rules);
+    }
+    
+    private ArrayList<ProductionRule> getProductionRulesStartingWith(ArrayList<Symbol> prefix, ArrayList<ProductionRule> rules){
+    	ArrayList<ProductionRule> retColl = new ArrayList<ProductionRule>();
+    	if(prefix != null){
+	    	for(ProductionRule pr : rules){
+		    	boolean mismatch = false;
+		    	if(pr.getRule().size() >= prefix.size()){
+		    		for(int i=0; i < prefix.size() - 1; i++){
+			    		if(!prefix.get(i).equals(pr.getRule().get(i))){
+			    			mismatch = true;
+			    			break;
+			    		}
+			    	}
+		    		if(!mismatch){
+		    			retColl.add(pr);
+		    		}
+		    	}
+	    	}
+    	}
+    	return retColl;
+    }
+    
+    private ArrayList<Symbol> prefixOfMaximalLength(ArrayList<ArrayList<Symbol>> prefixes){
+    	int maxSize = 0;
+    	ArrayList<Symbol> maxP = null;
+    	for(ArrayList<Symbol> p : prefixes){
+    		if(maxSize < p.size()){
+    			maxSize = p.size();
+    			maxP = p;
+    		}
+    	}
+    	
+    	return maxP;
+    }
+    
+    private boolean containsPrefix(ArrayList<ArrayList<Symbol>> prefixes, ArrayList<Symbol> p){
+    	for(ArrayList<Symbol> containedPre : prefixes){
+    		if(p.equals(containedPre)){
+    			return true;
+    		}
+    	}
+    	
+    	return false;
+    }
+    
+    private void getCommonPrefix(ArrayList<Symbol> commonPrefix, ArrayList<Symbol> rule1, ArrayList<Symbol> rule2){
+    	
+    	if(rule1.size() == 0 || rule2.size() == 0 || rule1.equals(rule2) ){
+    		return;
+    	}
+    	
+    	if( rule1.get(0).equals(rule2.get(0))){
+    		ArrayList<Symbol> r1Clone = new ArrayList<Symbol>(rule1);
+    		ArrayList<Symbol> r2Clone = new ArrayList<Symbol>(rule2);
+    		r1Clone.remove(0);
+    		r2Clone.remove(0);
+    		commonPrefix.add(rule1.get(0));
+    	    getCommonPrefix(commonPrefix, r1Clone, r2Clone);
+    	}
+    }
+    
+	///Hashes the rules on the basis of the nonterminal of the rule
     private HashMap<Nonterminal, ArrayList<ProductionRule>> hashRulesByNonterminal(ArrayList<ProductionRule> prRules)
     {
     	HashMap<Nonterminal, ArrayList<ProductionRule>> hashed = new HashMap<Nonterminal, ArrayList<ProductionRule>>();
