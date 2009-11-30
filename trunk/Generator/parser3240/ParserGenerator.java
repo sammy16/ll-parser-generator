@@ -98,20 +98,35 @@ public class ParserGenerator {
         }while((grule = grFileBuf.readLine()) != null);
         
         rmLeft = removeLeftRecursion(gRules);
-        /*
+        
         //once left recursion has been removed from the grammar then common prefix must be fixed
-        rmCommon = removeCommonPrefix(rmLeft);
+        //rmCommon = removeCommonPrefix(rmLeft);
    
         //finally production rules are created from each rule in the grammar list and added to rules list
-        for(int i = 0;i<rmCommon.length();i++)
+       /* for(int i = 0;i< rmCommon.size();i++)
         {
-            rules.addAll(getProductionRules(rmCommon.get(i));
+            rules.addAll(getProductionRules(rmCommon.get(i)));
         }*/
-        
-        
-        // also add each rule to the allRules hashtable, so we have them
-        // bucketed by nonterminal, which will be useful when computing the
-        // first() and follow() sets.
+       
+        //take the production rules and bucket them in the hashtable by nonterminal
+        Nonterminal nontermSym;
+        ArrayList<ProductionRule> prRules;
+        int n=0;
+        while(n<rules.size())
+        {
+            nontermSym = rules.get(n).getNonterminal();
+            prRules = new ArrayList<ProductionRule>();      //list of production rules that belong to the same nonterminal
+            while(rules.get(n).getNonterminal().getName().equals(nontermSym.getName()))
+            {
+                prRules.add(rules.get(n));
+                n++; 
+                if(n>= rules.size())
+                {
+                    break;
+                }
+            }
+            allRules.put(nontermSym, prRules);
+        }
     }
     
 
