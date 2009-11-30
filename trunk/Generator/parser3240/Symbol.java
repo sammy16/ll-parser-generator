@@ -17,10 +17,13 @@ package parser3240;
 public class Symbol{
     private String name;
     
-    public Symbol(String nameIn) { name = nameIn; }
+    ///A static instance of symbol that represents Epsilon
+    public static final Symbol EPSILON = new Symbol("EPSILON");
+    
+    public Symbol(String nameIn) { name = nameIn.trim(); }
     
     public String getName() { return name; }
-    public void setName(String nameIn) { name = nameIn; }
+    public void setName(String nameIn) { name = nameIn.trim(); }
     
     @Override
     public boolean equals (Object otherObj) {

@@ -131,12 +131,33 @@ public class ParserGenerator {
     
 
     ///Removes the instances of immediate left recursion from the grammar
+    ///we use the General immediate left recursion removal method described on
+    /// pg. 158 of Louden Chap 4 (I have an older edition of the book, so it might
+    /// be the case that your page numbers may not match up.
     private ArrayList<String> removeLeftRecursion(ArrayList<String> gRules) {
 		// TODO Auto-generated method stub
     	for(String lineRule : gRules )
     	{
     		ArrayList<ProductionRule> prodRules = this.getProductionRules(lineRule);
-    		System.out.println(prodRules);
+    		for(ProductionRule pr : ((ArrayList<ProductionRule>) prodRules.clone()))//clone so there's no iterator mishap
+    		{
+    			Symbol startingSymbol = pr.getRule().get(0);
+    			
+    			if(startingSymbol.equals(pr.getNonterminal())) //this means that we are dealing with a rule that has Left
+    			{												//recursion
+    				System.out.println(pr);
+    				//we create a new rule to act as the prime value for the ProductionRule
+    				//that currently has left recursion
+        		    Nonterminal aPrimeSymbol = new Nonterminal(pr.getNonterminal().getName() + "'");
+        			ProductionRule aPrime = new ProductionRule(aPrimeSymbol, new ArrayList<Symbol>());
+        			aPrime.getRule().add(Symbol.EPSILON); // add epsilon
+        			
+        			for(Symbol unitRule : ( (ArrayList<Symbol>) pr.getRule().clone()))
+        			{
+        				
+        			}
+    			}
+    		}
     	}
 		return null;
 	}
@@ -166,7 +187,7 @@ public class ParserGenerator {
            //traverses symbols
            while(symScan.hasNext())
            {
-               sym = symScan.next();
+               sym = symScan.next().trim();
                //test
                //System.out.println(sym);
                //checks to see if the symbol is a nonterminal or a terminal then adds
