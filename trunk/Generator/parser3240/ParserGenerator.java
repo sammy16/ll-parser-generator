@@ -130,15 +130,21 @@ public class ParserGenerator {
     }
     
 
+    ///Removes the instances of immediate left recursion from the grammar
     private ArrayList<String> removeLeftRecursion(ArrayList<String> gRules) {
 		// TODO Auto-generated method stub
+    	for(String lineRule : gRules )
+    	{
+    		ArrayList<ProductionRule> prodRules = this.getProductionRules(lineRule);
+    		System.out.println(prodRules);
+    	}
 		return null;
 	}
 
 	//Takes a grammar rule in the for of a string as a parameter and produces/returns a list of production rules
     public ArrayList<ProductionRule> getProductionRules(String grammarRule)
     {
-        Scanner gScan = new Scanner(grammarRule).useDelimiter("->");
+        Scanner gScan = new Scanner(grammarRule).useDelimiter(":");
         Scanner symScan;
         Nonterminal nonTerm; //the symbol on the left side of the arrow for the rule
         String rightSyms;
