@@ -33,9 +33,14 @@ public class Main {
 
         //testing
        //pg.feed("/Users/Jurojin/CS3240/Generator/parser3240/grammar.txt");
-        //ArrayList<ProductionRule> pr;
-        //pr= pg.getProductionRules("statement-list -> + - | (");
-        //System.out.println(pr);
+//        ArrayList<ProductionRule> pr;
+//        pr= pg.getProductionRules("statement-list : + - | (");
+//        for (ProductionRule r : pr)
+//        {
+//        	System.out.println("Production Rule Name: " +r.getNonterminal().getName() + " Production Rule: " 
+//        			+ r.getRule());
+//        
+//        }
 
         
         // just testing subversion commit

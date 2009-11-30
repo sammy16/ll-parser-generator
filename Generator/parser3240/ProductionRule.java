@@ -29,6 +29,6 @@ public class ProductionRule {
     @Override
     public String toString()
     {
-        return N + "->" + rule; 
+        return N + ":" + rule; 
     }
 }
