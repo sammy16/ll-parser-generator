@@ -97,7 +97,8 @@ public class ParserGenerator {
             
         }while((grule = grFileBuf.readLine()) != null);
         
-        rmLeft = removeLeftRecursion(gRules);
+        allRules = removeLeftRecursion(gRules); //RemoveLeftRecursion returns the rules hashed against their nonterminals.
+        System.out.println(allRules);
         
         //once left recursion has been removed from the grammar then common prefix must be fixed
         //rmCommon = removeCommonPrefix(rmLeft);
@@ -109,24 +110,24 @@ public class ParserGenerator {
         }*/
        
         //take the production rules and bucket them in the hashtable by nonterminal
-        Nonterminal nontermSym;
-        ArrayList<ProductionRule> prRules;
-        int n=0;
-        while(n<rules.size())
-        {
-            nontermSym = rules.get(n).getNonterminal();
-            prRules = new ArrayList<ProductionRule>();      //list of production rules that belong to the same nonterminal
-            while(rules.get(n).getNonterminal().getName().equals(nontermSym.getName()))
-            {
-                prRules.add(rules.get(n));
-                n++; 
-                if(n>= rules.size())
-                {
-                    break;
-                }
-            }
-            allRules.put(nontermSym, prRules);
-        }
+//        Nonterminal nontermSym;
+//        ArrayList<ProductionRule> prRules;
+//        int n=0;
+//        while(n<rules.size())
+//        {
+//            nontermSym = rules.get(n).getNonterminal();
+//            prRules = new ArrayList<ProductionRule>();      //list of production rules that belong to the same nonterminal
+//            while(rules.get(n).getNonterminal().getName().equals(nontermSym.getName()))
+//            {
+//                prRules.add(rules.get(n));
+//                n++; 
+//                if(n>= rules.size())
+//                {
+//                    break;
+//                }
+//            }
+//            allRules.put(nontermSym, prRules);
+//        }
     }
     
     ///Hashes the rules on the basis of the nonterminal of the rule
@@ -159,7 +160,7 @@ public class ParserGenerator {
     ///we use the General immediate left recursion removal method described on
     /// pg. 158 of Louden Chap 4 (I have an older edition of the book, so it might
     /// be the case that your page numbers may not match up.
-    private ArrayList<String> removeLeftRecursion(ArrayList<String> gRules) {
+    private HashMap<Nonterminal, ArrayList<ProductionRule>> removeLeftRecursion(ArrayList<String> gRules) {
 		
     	ArrayList<ProductionRule> prRules = new ArrayList<ProductionRule>();
     	for(String lineRule : gRules )
@@ -169,31 +170,74 @@ public class ParserGenerator {
         }
     	
     	HashMap<Nonterminal, ArrayList<ProductionRule>> map = this.hashRulesByNonterminal(prRules);
-    	for (Nonterminal key : map.keySet())
-    	{
+    	ArrayList<Nonterminal> keyList = new ArrayList<Nonterminal>();
+    	keyList.addAll(map.keySet());
+    	for (Nonterminal key : keyList )
+    	{	
     		ArrayList<ProductionRule> matchingRules = map.get(key);
-    		for(ProductionRule pr : matchingRules)//clone so there's no iterator mishap
-        		{
-        			Symbol startingSymbol = pr.getRule().get(0);
-        			
-        			if(startingSymbol.equals(pr.getNonterminal())) //this means that we are dealing with a rule that has Left
-        			{												//recursion
-        				System.out.println(pr);
-        				//we create a new rule to act as the prime value for the ProductionRule
-        				//that currently has left recursion
-            		    Nonterminal aPrimeSymbol = new Nonterminal(pr.getNonterminal().getName() + "'");
-            			ProductionRule aPrime = new ProductionRule(aPrimeSymbol, new ArrayList<Symbol>());
-            			aPrime.getRule().add(Symbol.EPSILON); // add epsilon
-            			
-            			for(Symbol unitRule : ( (ArrayList<Symbol>) pr.getRule().clone()))
-            			{
-            				
-            			}
-        			}
-        		}
+    		ArrayList<ProductionRule> newMatchingRules = new ArrayList<ProductionRule>();
+    		ArrayList<ProductionRule> primeRules = new ArrayList<ProductionRule>();
+    		boolean hasLeftRecursion = this.NonterminalHasLeftRecursion(key, matchingRules);
+    		
+    		if(hasLeftRecursion)
+    		{
+    			//we create a new rule to act as the prime value for the ProductionRule
+    		    Nonterminal aPrimeSymbol = new Nonterminal(key.getName() + "'");
+    			ProductionRule aPrimeEpsilonRule = new ProductionRule(aPrimeSymbol, new ArrayList<Symbol>());
+    			aPrimeEpsilonRule.getRule().add(Symbol.EPSILON); // add epsilon rule to aPrime
+    			ArrayList<ProductionRule> aPrimeRules = new ArrayList<ProductionRule>();
+    			aPrimeRules.add(aPrimeEpsilonRule);
+    			
+    			map.put(aPrimeSymbol, aPrimeRules);
+    			
+    			for (ProductionRule pr : ( (ArrayList<ProductionRule>) matchingRules.clone())) 
+    			{	// clone so we can edit matchingRules
+    			
+    				Symbol startingSymbol = pr.getRule().get(0);
+    			
+    				if(startingSymbol.equals(key)) //this is a rule that commits left recursion
+    				{
+    					matchingRules.remove(pr); // remove the offending production rule
+    					pr.getRule().remove(0); //remove the recursive call
+    					ArrayList<Symbol> newRule = new ArrayList<Symbol>();
+    			
+    					newRule.addAll(pr.getRule());
+    					newRule.add(aPrimeSymbol);
+    					ProductionRule newPrimeRule = new ProductionRule(aPrimeSymbol, newRule );
+    					aPrimeRules.add(newPrimeRule);
+    				}
+    				else // the rule does not have left recursion 
+    				{
+    					matchingRules.remove(pr);
+    					
+    					ArrayList<Symbol> newRule = new ArrayList<Symbol>();
+    	    			
+    					newRule.addAll(pr.getRule());
+    					newRule.add(aPrimeSymbol);
+    					ProductionRule newARule = new ProductionRule(key, newRule);
+    					matchingRules.add(newARule);
+    				}
+    			}
+    		}
     	}
-		return null;
+		return map;
 	}
+    
+    private boolean NonterminalHasLeftRecursion(Nonterminal key, ArrayList<ProductionRule> matchingRules)
+    {
+    	boolean hasLeftRecursion = false;
+		for(ProductionRule pr : matchingRules)//clone so there's no iterator mishap
+		{
+			Symbol startingSymbol = pr.getRule().get(0);
+			
+			if(startingSymbol.equals(key)) //this means that we are dealing with a rule that has Left
+			{												//recursion
+				System.out.println(pr);	
+    			hasLeftRecursion = true;            		
+			}
+		}
+		return hasLeftRecursion;
+    }
     
     
 
