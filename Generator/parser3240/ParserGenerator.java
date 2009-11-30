@@ -126,17 +126,23 @@ public class ParserGenerator {
     	for (Nonterminal key : keyList )
     	{	
     		ArrayList<ProductionRule> matchingRules = map.get(key);
-    		System.out.println(getMaximalCommonPrefixProductionRules(matchingRules));
+    		ArrayList<Symbol> cp = new ArrayList<Symbol>();
+    		ArrayList<ProductionRule> commonPrefRules = getMaximalCommonPrefixProductionRules(matchingRules, cp);
+    		if(commonPrefRules.size() > 1){ // if we've found some production rules that have commonPrefix
+    			//replace with A => cp Beta1 | cp Beta2 |...
+    			// with A => cp A*
+    			//		A* =>Beta1 | Beta2 | EPSILON
+    		}
     	}
 		return null;
 	}
     
-    private ArrayList<ProductionRule> getMaximalCommonPrefixProductionRules(ArrayList<ProductionRule> rules){
+    private ArrayList<ProductionRule> getMaximalCommonPrefixProductionRules(ArrayList<ProductionRule> rules,
+    		ArrayList<Symbol> cp){
     	
     	if(rules.size() == 1 || rules.size() == 0){
     		return new ArrayList<ProductionRule>(); // if there can't be matches, return an empty list
-    	}
-    	
+    	}    	
     	
     	ArrayList<ArrayList<Symbol>> foundPrefix = new ArrayList<ArrayList<Symbol>>();
     	for(ProductionRule outer : rules){
@@ -152,6 +158,7 @@ public class ParserGenerator {
     	}
     	
     	ArrayList<Symbol> maxPrefix = prefixOfMaximalLength(foundPrefix);
+    	cp.addAll(maxPrefix);
     	return getProductionRulesStartingWith(maxPrefix, rules);
     }
     
