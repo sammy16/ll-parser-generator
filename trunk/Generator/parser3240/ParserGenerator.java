@@ -129,38 +129,73 @@ public class ParserGenerator {
         }
     }
     
+    ///Hashes the rules on the basis of the nonterminal of the rule
+    private HashMap<Nonterminal, ArrayList<ProductionRule>> hashRulesByNonterminal(ArrayList<ProductionRule> prRules)
+    {
+    	HashMap<Nonterminal, ArrayList<ProductionRule>> hashed = new HashMap<Nonterminal, ArrayList<ProductionRule>>();
+        Nonterminal nontermSym;
+        int n=0;
+        
+        while(n<prRules.size())
+        {
+            nontermSym = prRules.get(n).getNonterminal();
+            ArrayList<ProductionRule> newRules = new ArrayList<ProductionRule>();      //list of production rules that belong to the same nonterminal
+            while(prRules.get(n).getNonterminal().getName().equals(nontermSym.getName()))
+            {
+                newRules.add(prRules.get(n));
+                n++; 
+                if(n>= prRules.size())
+                {
+                    break;
+                }
+            }
+            hashed.put(nontermSym, newRules);
+        }
+    	return hashed;
+    }
+    
 
     ///Removes the instances of immediate left recursion from the grammar
     ///we use the General immediate left recursion removal method described on
     /// pg. 158 of Louden Chap 4 (I have an older edition of the book, so it might
     /// be the case that your page numbers may not match up.
     private ArrayList<String> removeLeftRecursion(ArrayList<String> gRules) {
-		// TODO Auto-generated method stub
+		
+    	ArrayList<ProductionRule> prRules = new ArrayList<ProductionRule>();
     	for(String lineRule : gRules )
+        {
+        	ArrayList<ProductionRule> prodRules = this.getProductionRules(lineRule);
+        	prRules.addAll(prodRules);
+        }
+    	
+    	HashMap<Nonterminal, ArrayList<ProductionRule>> map = this.hashRulesByNonterminal(prRules);
+    	for (Nonterminal key : map.keySet())
     	{
-    		ArrayList<ProductionRule> prodRules = this.getProductionRules(lineRule);
-    		for(ProductionRule pr : ((ArrayList<ProductionRule>) prodRules.clone()))//clone so there's no iterator mishap
-    		{
-    			Symbol startingSymbol = pr.getRule().get(0);
-    			
-    			if(startingSymbol.equals(pr.getNonterminal())) //this means that we are dealing with a rule that has Left
-    			{												//recursion
-    				System.out.println(pr);
-    				//we create a new rule to act as the prime value for the ProductionRule
-    				//that currently has left recursion
-        		    Nonterminal aPrimeSymbol = new Nonterminal(pr.getNonterminal().getName() + "'");
-        			ProductionRule aPrime = new ProductionRule(aPrimeSymbol, new ArrayList<Symbol>());
-        			aPrime.getRule().add(Symbol.EPSILON); // add epsilon
+    		ArrayList<ProductionRule> matchingRules = map.get(key);
+    		for(ProductionRule pr : matchingRules)//clone so there's no iterator mishap
+        		{
+        			Symbol startingSymbol = pr.getRule().get(0);
         			
-        			for(Symbol unitRule : ( (ArrayList<Symbol>) pr.getRule().clone()))
-        			{
-        				
+        			if(startingSymbol.equals(pr.getNonterminal())) //this means that we are dealing with a rule that has Left
+        			{												//recursion
+        				System.out.println(pr);
+        				//we create a new rule to act as the prime value for the ProductionRule
+        				//that currently has left recursion
+            		    Nonterminal aPrimeSymbol = new Nonterminal(pr.getNonterminal().getName() + "'");
+            			ProductionRule aPrime = new ProductionRule(aPrimeSymbol, new ArrayList<Symbol>());
+            			aPrime.getRule().add(Symbol.EPSILON); // add epsilon
+            			
+            			for(Symbol unitRule : ( (ArrayList<Symbol>) pr.getRule().clone()))
+            			{
+            				
+            			}
         			}
-    			}
-    		}
+        		}
     	}
 		return null;
 	}
+    
+    
 
 	//Takes a grammar rule in the for of a string as a parameter and produces/returns a list of production rules
     public ArrayList<ProductionRule> getProductionRules(String grammarRule)
