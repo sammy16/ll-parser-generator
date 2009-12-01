@@ -51,7 +51,7 @@ public class ParsingTable {
                 {
                     table[x][y].get(cordinate).add(P);
                     //test
-                    //System.out.println("added " + P.getNonterminal()+"-> "+P.getRule());
+                   // System.out.println("added " + P.getNonterminal()+"-> "+P.getRule());
                     //System.out.println("Table entry is now: " + table[x][y].get(cordinate));
                 }
             }
@@ -59,12 +59,44 @@ public class ParsingTable {
         return;
     }
     
+    //get private variable table
     public HashMap<String,ArrayList<ProductionRule>>[][] getTable()
     {
         return table;
     }
     
-    public String toString() {
-        return "";
+    //printing method to display table in a grid, first row is are terminals and first column is nonterminals
+    public void printTable()
+    {
+        String nontermHeader,terminalHeader,rowRule;
+        System.out.print("\t");
+        //print the row of terminals
+        for(int y=0;y<columns;y++)
+        {
+            //test
+           terminalHeader =table[y][0].keySet().toString().substring(table[y][0].keySet().toString().indexOf(",")+1,table[y][0].keySet().toString().length()-1);
+           System.out.print(terminalHeader+"\t");
+
+        }
+        System.out.println();
+        for(int x=0;x<rows;x++)
+        {
+            //print nonterminal for the row
+            nontermHeader = table[0][x].keySet().toString().substring(1,table[0][x].keySet().toString().indexOf(","));
+            System.out.print(nontermHeader+"  ");
+            
+            for(int y=0;y<columns;y++)
+            {
+                //print row of rules in coresponding location
+                rowRule = table[y][x].get(table[y][x].keySet().toArray()[0]).toString().substring(1,table[y][x].get(table[y][x].keySet().toArray()[0]).toString().length()-1);
+                if(rowRule.length()==0)
+                {
+                    System.out.print("     ");
+                }
+                System.out.print(rowRule +"\t");
+                
+            }
+            System.out.println();
+        }
     }
 }
