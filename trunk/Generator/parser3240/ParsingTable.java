@@ -69,13 +69,12 @@ public class ParsingTable {
     public void printTable()
     {
         String nontermHeader,terminalHeader,rowRule;
-        System.out.print("\t");
         //print the row of terminals
         for(int y=0;y<columns;y++)
         {
             //test
            terminalHeader =table[y][0].keySet().toString().substring(table[y][0].keySet().toString().indexOf(",")+1,table[y][0].keySet().toString().length()-1);
-           System.out.print(terminalHeader+"\t");
+           System.out.print("\t\t"+terminalHeader);
 
         }
         System.out.println();
@@ -83,7 +82,7 @@ public class ParsingTable {
         {
             //print nonterminal for the row
             nontermHeader = table[0][x].keySet().toString().substring(1,table[0][x].keySet().toString().indexOf(","));
-            System.out.print(nontermHeader+"  ");
+            System.out.print(nontermHeader+"\t");
             
             for(int y=0;y<columns;y++)
             {
@@ -91,9 +90,9 @@ public class ParsingTable {
                 rowRule = table[y][x].get(table[y][x].keySet().toArray()[0]).toString().substring(1,table[y][x].get(table[y][x].keySet().toArray()[0]).toString().length()-1);
                 if(rowRule.length()==0)
                 {
-                    System.out.print("     ");
+                    System.out.print("\t");
                 }
-                System.out.print(rowRule +"\t");
+                System.out.print("\t"+rowRule);
                 
             }
             System.out.println();
