@@ -13,12 +13,16 @@ public class ParsingTable {
     HashMap<String,ArrayList<ProductionRule>>[][] table; //2d array that will hold hashtable productionrules as entries
     private int rows;
     private int columns;
+    ArrayList<Token> tokens;
+    ArrayList<Nonterminal> nonTerms;
     
     //initialize number of rows and columns in the table to the number of nonterminals and terminals
-    public ParsingTable(int numTokens, int numNonterminals,ArrayList<Token> tokens,ArrayList<Nonterminal> nonTerms)
+    public ParsingTable(int numTokens, int numNonterminals,ArrayList<Token> myTokens,ArrayList<Nonterminal> myNonTerms)
     {
         rows = numNonterminals;
         columns = numTokens;
+        tokens = myTokens;
+        nonTerms = myNonTerms;
         table = (HashMap<String,ArrayList<ProductionRule>>[][]) new HashMap[numTokens][numNonterminals];
         for(int x=0;x<columns;x++)
         {
@@ -27,7 +31,7 @@ public class ParsingTable {
                 //test
                 //System.out.println(x+" "+y);
                 table[x][y] = new HashMap<String,ArrayList<ProductionRule>>();
-                table[x][y].put(nonTerms.get(y).getName()+","+tokens.get(x).getName(),new ArrayList<ProductionRule>());
+                table[x][y].put(myNonTerms.get(y).getName()+","+myTokens.get(x).getName(),new ArrayList<ProductionRule>());
                 //test
                 //System.out.println(table[x][y].keySet());
             }
@@ -57,6 +61,10 @@ public class ParsingTable {
             }
         }
         return;
+    }
+    
+    public ProductionRule getEntry(Nonterminal N, Token T) {
+        return table[tokens.indexOf(T)][nonTerms.indexOf(N)].get(N+","+T).get(0);
     }
     
     //get private variable table
