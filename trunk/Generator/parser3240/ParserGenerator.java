@@ -114,8 +114,13 @@ public class ParserGenerator {
         // we use allRules to create "rules", which is a straight-up list of rules
         ArrayList<Nonterminal> keyList = new ArrayList<Nonterminal>();
         keyList.addAll(allRules.keySet());
-        for (Nonterminal key : keyList)
+        System.out.println("keyList = " + keyList);
+        for (Nonterminal key : keyList) {
             rules.addAll(allRules.get(key));
+            
+            if (!nonterminalList.contains(key))
+                nonterminalList.add(key);
+        }
         
         //now that common prefix is done we build the parsing table
         buildParsingTable();
@@ -676,9 +681,13 @@ public class ParserGenerator {
         for (Symbol S : symbols) {
             if (S instanceof Token && !S.getName().equals("EPSILON"))
                 return false;
-            if (S instanceof Nonterminal &&
-                !firstSets.get(keyList.get(keyList.indexOf((Nonterminal)S))).contains(new Token("EPSILON")))
-                return false;
+            if (S instanceof Nonterminal) {
+                System.out.println((Nonterminal) S);
+                int index = keyList.indexOf((Nonterminal) S);
+                System.out.println("found at index " + index);
+                if (!firstSets.get(keyList.get(keyList.indexOf((Nonterminal)S))).contains(new Token("EPSILON")))
+                    return false;
+            }
         }
         return true;
     }
