@@ -29,15 +29,19 @@ public class Main {
         //hiron grammar test
 //        pg.feed("C:\\Users\\Hiron\\Documents\\Gatech09Fall\\Compilers\\Final Project\\leftfac.ll1");
         //pg.feed("C:\\leftfac.ll1");
-        pg.feed("C:\\louden_pg178.ll1");
+        //pg.feed("C:\\leftrec.ll1");
+        //pg.feed("C:\\louden_pg178.ll1");
+        //pg.feed("C:\\beta_testcase.ll1");
+        //pg.feed("C:\\tiny.ll1");
         
-        ParsingTable parseTable = pg.buildParsingTable();
-        parseTable.printTable();
+        //ParsingTable parseTable = pg.buildParsingTable();
+        //parseTable.printTable();
         
         //pg.feed("/Users/Jurojin/CS3240/Generator/parser3240/grammar.txt");
 
         //testing
        //pg.feed("/Users/Jurojin/CS3240/Generator/parser3240/grammar.txt");
+        
 //        ArrayList<ProductionRule> pr;
 //        pr= pg.getProductionRules("statement-list : + - | (");
 //        for (ProductionRule r : pr)
@@ -50,36 +54,47 @@ public class Main {
         
         // just testing subversion commit
         
-//        ParserGenerator parserGen = new ParserGenerator();
-//        ILexer lexer = new Lexer();
-//        String fileContents = "";
-//        ArrayList<Token> tokens = lexer.process(fileContents);
-//                
-//        String grammar = "";
-//        parserGen.feed(grammar);
-//        ParsingTable parseTable = parserGen.buildParsingTable();
-//        
-//        // parser driver
-//        // see Pg 155 of Louden
+        ParserGenerator parserGen = new ParserGenerator();
+        ILexer lexer = new Lexer();
+        String fileContents = "";
+        ArrayList<Token> tokens = lexer.process(fileContents);
+                
+        String grammar = "";
+        parserGen.feed("C:\\tiny.ll1");
+        
+        ParsingTable parseTable = parserGen.buildParsingTable();
+        parseTable.printTable();
+        
+        // parser driver
+        // see Pg 155 of Louden
 //        int i = 0;
 //        Stack<Symbol> stack = new Stack<Symbol>();
-//        while (!stack.empty() && i < tokens.size()) {
+//        // push start symbol onto the stack here
+//        // stack.push(parseTable.getStartSymbol());
+//        while (!stack.peek().equals(new Token("$")) && i < tokens.size()) {
 //            if (stack.peek() instanceof Token) {
-//                if (stack.top().equals(tokens.get(i))) {
+//                if (stack.peek().equals(tokens.get(i))) {
 //                    stack.pop();
 //                    i++;
 //                }
+//                // else error???
 //            }
-//            else if (stack.top() instanceof Nonterminal) {
-//                ProductionRule rule = parseTable.getEntry(stack.top(), tokens.get(i));
+//            // we have a nonterminal on top of the stack, so we expand it using
+//            // the parse table to push the next production onto the stack
+//            else if (stack.peek() instanceof Nonterminal) {
+//                ProductionRule rule = parseTable.getEntry((Nonterminal)stack.peek(), tokens.get(i));
+//                // if parse table entry is empty, then ERROR
+//                //if (rule == null) break;
 //                stack.pop();
-//                ArrayList<Symbol> symbols = rule.getSymbols();
+//                ArrayList<Symbol> symbols = rule.getRule();
 //                for (int x = symbols.size() - 1; x >= 0; x--)
 //                    stack.push(symbols.get(x));
-//                // else error
+//                // else error???
 //            }
 //        }
-//        if (stack.empty() && i == tokens.size())
+//        // we were able to consume the whole input, and we
+//        // have a $ at the top of the stack -- accept!
+//        if (stack.peek().equals("$") && i == tokens.size())
 //            System.out.println("Successful parse!");
 //        else
 //            System.out.println("Parse error!");
