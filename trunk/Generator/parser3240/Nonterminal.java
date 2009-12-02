@@ -23,7 +23,11 @@ public class Nonterminal extends Symbol {
     
     @Override
     public boolean equals (Object otherObj) {
-        Nonterminal T2 = (Nonterminal) otherObj;
-        return (super.getName().equals(T2.getName()));
+        try {
+            Nonterminal T2 = (Nonterminal) otherObj;
+            return (super.getName().equals(T2.getName()));
+        } catch (ClassCastException e) {
+            return false;
+        }
     }
 }

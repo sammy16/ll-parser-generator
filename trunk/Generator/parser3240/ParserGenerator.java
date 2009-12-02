@@ -106,7 +106,16 @@ public class ParserGenerator {
         
         //once left recursion has been removed from the grammar then common prefix must be fixed
         allRules = removeCommonPrefix(allRules);
+        System.out.println("allRules = ");
         System.out.println(allRules);
+        
+        // okay, now all our rules are fixed.
+        // allRules is the hashmap from nonterminal to a list of production rules
+        // we use allRules to create "rules", which is a straight-up list of rules
+        ArrayList<Nonterminal> keyList = new ArrayList<Nonterminal>();
+        keyList.addAll(allRules.keySet());
+        for (Nonterminal key : keyList)
+            rules.addAll(allRules.get(key));
         
         //now that common prefix is done we build the parsing table
         buildParsingTable();
@@ -148,7 +157,8 @@ public class ParserGenerator {
     					newStarRule.add(r.getRule().get(i));
     				}
     				if(newStarRule.size() == 0){
-    					newStarRule.add(Symbol.EPSILON);
+    					//newStarRule.add(Symbol.EPSILON);
+                                        newStarRule.add(new Token("EPSILON"));
     				}
     				ProductionRule newStarPR = new ProductionRule(aStar, newStarRule);
     				aStarPRS.add(newStarPR);
@@ -239,6 +249,8 @@ public class ParserGenerator {
     
     private void getCommonPrefix(ArrayList<Symbol> commonPrefix, ArrayList<Symbol> rule1, ArrayList<Symbol> rule2){
     	
+        System.out.println("rule1 = " + rule1);
+        System.out.println("rule2 = " + rule2);
     	if(rule1.size() == 0 || rule2.size() == 0 || rule1.equals(rule2) ){
     		return;
     	}
@@ -307,7 +319,8 @@ public class ParserGenerator {
     			//we create a new rule to act as the prime value for the ProductionRule
     		    Nonterminal aPrimeSymbol = new Nonterminal(key.getName() + "'");
     			ProductionRule aPrimeEpsilonRule = new ProductionRule(aPrimeSymbol, new ArrayList<Symbol>());
-    			aPrimeEpsilonRule.getRule().add(Symbol.EPSILON); // add epsilon rule to aPrime
+    			//aPrimeEpsilonRule.getRule().add(Symbol.EPSILON); // add epsilon rule to aPrime
+                        aPrimeEpsilonRule.getRule().add(new Token("EPSILON")); // add epsilon rule to aPrime
     			ArrayList<ProductionRule> aPrimeRules = new ArrayList<ProductionRule>();
     			aPrimeRules.add(aPrimeEpsilonRule);
     			
@@ -411,19 +424,33 @@ public class ParserGenerator {
 
     public ParsingTable buildParsingTable() {
         // compute first() sets
-        // (create hashtable from each nonterminal to its first() set)
         System.out.println("Computing First sets...");
-        //computeFirstSets();
+        computeFirstSets();
         
         // compute follow() sets
-        // (create hashtable from each nonterminal to its follow() set)
         System.out.println("Computing Follow sets...");
-        //computeFollowSets();
+        computeFollowSets();
         
         // compute predict() sets using first() and follow() sets
-        // (create hashtable from each production rule to its predict() set)
         System.out.println("Computing Predict sets...");
-        //computePredictSets();
+        computePredictSets();
+        
+        // testing
+        // print First, Follow, and Predict sets
+        ArrayList<Nonterminal> keyList = new ArrayList<Nonterminal>();
+        keyList.addAll(firstSets.keySet());
+        for (Nonterminal N : keyList)
+            System.out.println("first(" + N + ") = " + firstSets.get(N));
+        
+        ArrayList<Nonterminal> keyList2 = new ArrayList<Nonterminal>();
+        keyList2.addAll(followSets.keySet());
+        for (Nonterminal N : keyList2)
+            System.out.println("follow(" + N + ") = " + followSets.get(N));
+        
+        ArrayList<ProductionRule> keyList3 = new ArrayList<ProductionRule>();
+        keyList3.addAll(predictSets.keySet());
+        for (ProductionRule R : keyList3)
+            System.out.println("predict(" + R + ") = " + predictSets.get(R));
         
         // initialize new ParsingTable
         LL1table = new ParsingTable(tokenList.size(),nonterminalList.size(),tokenList,nonterminalList);
@@ -445,173 +472,287 @@ public class ParserGenerator {
                 LL1table.addEntry(nonT.getNonterminal(), t, nonT);
             }
         }
-        return null;
+        return LL1table;
     }
-//    
-//    private ProductionRule removeLeftRecursion(ProductionRule rule) {
-//        return null;
-//    }
-//    
-//    private ProductionRule removeCommonPrefix(ProductionRule rule) {
-//        return null;
-//    }
-//    
-//    private void computeFirstSets() {
-//        for (Nonterminal N : nonterminalList)
-//            firstSets.put(N, first(N));
-//    }
-//    
-//    // can we use Set<Token> here?
-//    private ArrayList<Token> first(Symbol S) {
-//        // S is any terminal (which includes epsilon)
-//        if (S instanceof Token) {
-//            ArrayList<Token> singleton = new ArrayList<Token>();
-//            singleton.add((Token)S);
-//            return singleton;
-//        }
-//        
-//        ArrayList<Token> ret = new ArrayList<Token>();
-//        // okay, so it's a nonterminal
-//        // iterate through each rule for this nonterminal
-//        for (ProductionRule R : allRules.get((Nonterminal) S)) {
-//            // okay, we are on a particular rule
-//            ArrayList<Symbol> symbols = R.getRule();
-//            boolean hasEpsilon = false;
-//            // now, for each symbol in that rule sequence...
-//            for (Symbol X_i : symbols) {
-//                hasEpsilon = false;
-//                // we add the First set the current symbol
-//                // if that First set contains epsilon, we note that, so that
-//                // we can get the First set of the NEXT symbol, too.
-//                for (Token T : first(X_i)) {
-//                    if (T.getName().equals("EPSILON"))
-//                        hasEpsilon = true;
-//                    else
-//                        ret.add(T);
-//                }
-//                if (!hasEpsilon)
-//                    break;
-//            }
-//            // if hasEpsilon is true, this implies that every symbol in the
-//            // sequence had epsilon in its First set, and so the First set
-//            // for the whole rule must contain epsilon, as well.
-//            if (hasEpsilon)
-//                ret.add(new Token("EPSILON"));
-//        }
-//        return removeDups(ret);
-//    }
-//    
-//    /**
-//     * Louden page 168
-//     * This method assumes computeFirstSets() has already been called,
-//     * creating a cache of first(N) for each nonterminal.
-//     * @param alpha
-//     * @return
-//     */
-//    private ArrayList<Token> first(ArrayList<Symbol> alpha) {
-//       ArrayList<Token> ret = first(alpha.get(0));
-//       boolean hasEpsilon = ret.contains(new Token("EPSILON"));
-//       ret.remove(new Token("EPSILON"));
-//       int i = 1;
-//       while (hasEpsilon && i < alpha.size()) {
-//           ArrayList<Token> nextFirstSet = null;
-//           Symbol nextSymbol = alpha.get(i);
-//           // if it's a nonterminal, it's already computed and cached
-//           if (nextSymbol instanceof Nonterminal)
-//               nextFirstSet = firstSets.get((Nonterminal)nextSymbol);
-//           // if it's a terminal, it will be computed instantly anyway
-//           else
-//               nextFirstSet = first(nextSymbol);
-//           
-//           if (!nextFirstSet.contains(new Token("EPSILON")))
-//               hasEpsilon = false;
-//           for (Token T : nextFirstSet)
-//               ret.add(T);
-//           ret.remove(new Token("EPSILON"));
-//           i++;
-//       }
-//       
-//       return removeDups(ret);
-//    }
-//    
-//    
-//     /**
-//     * Remove duplicates from an ArrayList<Token>.
-//     * Probably not the most efficient way.
-//     * @param list
-//     * @return
-//     */
-//    private ArrayList<Token> removeDups (ArrayList<Token> list) {
-//        ArrayList<Token> goodSet = new ArrayList<Token>();
-//        for (Token T : list)
-//            if (!goodSet.contains(T))
-//                goodSet.add(T);
-//        return goodSet;
-//    }
-//
-//    private void computeFollowSets() {
-//        for (Nonterminal N : nonterminalList)
-//            followSets.put(N, follow(N));
-//    }
-//    
-//    // Compute the follow() set for a given nonterminal N by
-//    // iterating through every single production rule.
-//    //
-//    // This is wickedly inefficient, but simple and it works.
-//    // If there's extra time, I'll rewrite it.
-//    private ArrayList<Token> follow(Nonterminal N) {
-//        ArrayList<Token> ret = new ArrayList<Token>();
-//        
-//        // for every single production rule in the grammar...
-//        for (ProductionRule P : rules) {
-//            // current nonterminal
-//            Nonterminal A = P.getNonterminal();
-//            // current rule
-//            ArrayList<Symbol> rule = P.getRule();
-//            // for each symbol in the rule
-//            for (int i = 0; i < rule.size(); i++) {
-//                Symbol S = rule.get(i);
-//                // if it's a nonterminal, it might be the one we're looking for
-//                if (S instanceof Nonterminal) {
-//                    // indeed, we found our sought-after nonterminal in the sequence!
-//                    if (N.equals((Nonterminal)S)) {
-//                        // thus, we add its First set to the Follow set result
-//                        ArrayList<Token> first = first(new ArrayList<Symbol>(rule.subList(i+1, rule.size())));
-//                        boolean hasEpsilon = first.contains(new Token("EPSILON"));
-//                        first.remove(new Token("EPSILON"));
-//                        for (Token T : first)
-//                            ret.add(T);
-//                        // if the First set contains epsilon, then we also have to
-//                        // add the Follow set of the current nonterminal to this Follow set.
-//                        if (hasEpsilon) {
-//                            for (Token T : follow(A))
-//                                ret.add(T);
-//                        }
-//                    }//end if
-//                }//end if
-//            }//end for
-//        }//end for
-//        return ret;
-//    }
-//    
-//    // page 178 Louden
-//    private void computePredictSets() {
-//        for (ProductionRule P : rules) {
-//            ArrayList<Token> temp = new ArrayList<Token>();
-//            
-//            Nonterminal A = P.getNonterminal();
-//            ArrayList<Symbol> alpha = P.getRule();
-//            ArrayList<Token> first = first(alpha);
-//            for (Token T : first)
-//                temp.add(T);
-//            
-//            if (first.contains(new Token("EPSILON"))) {
-//                for (Token T : follow(A))
-//                    temp.add(T);
-//            }
-//            
-//            predictSets.put(P, temp);
-//        }
-//    }
+
+    private void computeFirstSets() {
+        for (Nonterminal N : nonterminalList) {
+            ArrayList<Token> temp = first(N);
+            firstSets.put(N, temp);
+            System.out.println("Added first set: " + N + " -> " + temp);
+        }
+    }
+    
+    private ArrayList<Token> first(Symbol S) {
+        // S is any terminal (which includes epsilon)
+        if (S instanceof Token) {
+            ArrayList<Token> singleton = new ArrayList<Token>();
+            singleton.add((Token)S);
+            return singleton;
+        }
+        
+        /**if (S instanceof Symbol && S.equals(Symbol.EPSILON)) {
+            ArrayList<Token> singleton = new ArrayList<Token>();
+            singleton.add(new Token("EPSILON"));
+            return singleton;
+        }*/
+        
+        ArrayList<Token> ret = new ArrayList<Token>();
+        // okay, so it's a nonterminal
+        // iterate through each rule for this nonterminal
+        System.out.println((Nonterminal) S);
+        ArrayList<Nonterminal> keyList = new ArrayList<Nonterminal>();
+        keyList.addAll(allRules.keySet());
+        
+        System.out.println(keyList.indexOf((Nonterminal) S));
+        //for (ProductionRule R : allRules.get((Nonterminal) S)) {
+        for (ProductionRule R : allRules.get(keyList.get(keyList.indexOf((Nonterminal)S)))) {
+            // okay, we are on a particular rule
+            ArrayList<Symbol> symbols = R.getRule();
+            boolean hasEpsilon = false;
+            // now, for each symbol in that rule sequence...
+            for (Symbol X_i : symbols) {
+                hasEpsilon = false;
+                // we add the First set the current symbol
+                // if that First set contains epsilon, we note that, so that
+                // we can get the First set of the NEXT symbol, too.
+                for (Token T : first(X_i)) {
+                    if (T.getName().equals("EPSILON"))
+                        hasEpsilon = true;
+                    else
+                        ret.add(T);
+                }
+                if (!hasEpsilon)
+                    break;
+            }
+            // if hasEpsilon is true, this implies that every symbol in the
+            // sequence had epsilon in its First set, and so the First set
+            // for the whole rule must contain epsilon, as well.
+            if (hasEpsilon)
+                ret.add(new Token("EPSILON"));
+        }
+        return removeDups(ret);
+    }
+    
+    /**
+     * Louden page 168
+     * This method assumes computeFirstSets() has already been called,
+     * creating a cache of first(N) for each nonterminal.
+     * @param alpha
+     * @return
+     */
+    private ArrayList<Token> first(ArrayList<Symbol> alpha) {
+        System.out.println("first(" + alpha + ") was called");
+        
+        if (alpha.size() == 0) {   
+            ArrayList<Token> temp = new ArrayList<Token>();
+            //temp.add(new Token("EPSILON"));
+            return temp;
+        }
+       
+       ArrayList<Nonterminal> keyList = new ArrayList<Nonterminal>();
+       keyList.addAll(firstSets.keySet());
+        
+       ArrayList<Token> ret = first(alpha.get(0));
+       boolean hasEpsilon = ret.contains(new Token("EPSILON"));
+       ret.remove(new Token("EPSILON"));
+       int i = 1;
+       while (hasEpsilon && i < alpha.size()) {
+           ArrayList<Token> nextFirstSet = null;
+           Symbol nextSymbol = alpha.get(i);
+           // if it's a nonterminal, it's already computed and cached
+           if (nextSymbol instanceof Nonterminal) {
+               nextFirstSet = firstSets.get(keyList.get(keyList.indexOf((Nonterminal)nextSymbol)));
+               System.out.println("nextFirstSet = " + nextFirstSet);
+           }
+           // if it's a terminal, it will be computed instantly anyway
+           else
+               nextFirstSet = first(nextSymbol);
+           
+           if (!nextFirstSet.contains(new Token("EPSILON")))
+               hasEpsilon = false;
+           for (Token T : nextFirstSet)
+               ret.add(T);
+           ret.remove(new Token("EPSILON"));
+           i++;
+       }
+       
+       return removeDups(ret);
+    }
+    
+    
+     /**
+     * Remove duplicates from an ArrayList<Token>.
+     * Probably not the most efficient way.
+     * @param list
+     * @return
+     */
+    private ArrayList<Token> removeDups (ArrayList<Token> list) {
+        ArrayList<Token> goodSet = new ArrayList<Token>();
+        for (Token T : list)
+            if (!goodSet.contains(T))
+                goodSet.add(T);
+        return goodSet;
+    }
+
+    /**private void computeFollowSets() {
+        for (Nonterminal N : nonterminalList) {
+            ArrayList<Token> temp = follow(N);
+            System.out.println("Follow set added: " + N + " = " + temp);
+            followSets.put(N, temp);
+        }
+    }**/
+
+    // Compute Follow sets for all nonterminals
+    private void  computeFollowSets() {
+        ArrayList<Nonterminal> keyList = new ArrayList<Nonterminal>();
+        keyList.addAll(allRules.keySet());
+        // initialize follow sets here
+        for (Nonterminal N : keyList) {
+            if (N.getName().equals(startSymbol.getName())) {
+                ArrayList<Token> temp = new ArrayList<Token>();
+                temp.add(new Token("$"));
+                followSets.put(N, temp);
+            }
+            else {
+                followSets.put(N, new ArrayList<Token>());
+            }
+        }
+        
+        ArrayList<Token> ret = new ArrayList<Token>();
+        
+        boolean changed = true;
+        // while the follow sets are still "active" (changing), keep making passes
+        while (changed) {
+            changed = false;
+            for (Nonterminal N : keyList) {
+                for (ProductionRule prodn : allRules.get(N)) {
+                    ArrayList<Symbol> prodelements = prodn.getRule();
+                    int k = prodelements.size();
+                    for (int i = 0; i < k; i++) {
+                        Symbol S = prodelements.get(i);
+                        if (S instanceof Nonterminal) {
+                            Nonterminal X = keyList.get(keyList.indexOf((Nonterminal)S));
+                            ArrayList<Token> xFollow = followSets.get(X);
+                            ArrayList<Symbol> prodend = new ArrayList<Symbol>(prodelements.subList(i+1, k));
+                            
+                            if (allNullable(prodend)) {
+                                ArrayList<Token> nFollow = followSets.get(N);
+                                // add N follow set to X follow set; check for changes
+                                boolean changed2 = false;
+                                for (Token T : nFollow) {
+                                    if (!xFollow.contains(T)) {
+                                        changed2 = true;
+                                        xFollow.add(T);
+                                    }
+                                }
+                                changed = changed || changed2;
+                            }
+                            // first set
+                            ArrayList<Symbol> followSymbols = new ArrayList<Symbol>(prodelements.subList(i+1, k));
+                            ArrayList<Token> first = first(followSymbols);
+                            // add first set to xFollow; check for changes
+                            boolean changed3 = false;
+                            for (Token T : first) {
+                                if (!xFollow.contains(T)) {
+                                    changed3 = true;
+                                    xFollow.add(T);
+                                }
+                            }
+                            changed = changed || changed3;
+                            followSets.put(X, xFollow);
+                        }//end if
+                    }
+                }
+            }
+        }
+    }
+    
+    // a symbol string is nullable if the whole thing can through some
+    // series of productions be mapped to epsilon
+    private boolean allNullable(ArrayList<Symbol> symbols) {
+        ArrayList<Nonterminal> keyList = new ArrayList<Nonterminal>();
+        keyList.addAll(firstSets.keySet());
+        for (Symbol S : symbols) {
+            if (S instanceof Token && !S.getName().equals("EPSILON"))
+                return false;
+            if (S instanceof Nonterminal &&
+                !firstSets.get(keyList.get(keyList.indexOf((Nonterminal)S))).contains(new Token("EPSILON")))
+                return false;
+        }
+        return true;
+    }
+            
+    // Compute the follow() set for a given nonterminal N by
+    // iterating through every single production rule.
+    /**private ArrayList<Token> follow(Nonterminal N) {
+        System.out.println("Entered function follow(" + N + ")");
+        ArrayList<Token> ret = new ArrayList<Token>();
+        
+        if (N.getName().equals(startSymbol.getName()))
+            ret.add(new Token("$"));
+        
+        System.out.println("rules = " + rules);
+        
+        // for every single production rule in the grammar...
+        for (ProductionRule P : rules) {
+            // current nonterminal
+            Nonterminal A = P.getNonterminal();
+            // current rule
+            ArrayList<Symbol> rule = P.getRule();
+
+            System.out.println("follow(): iterating rule: "  + A + " -> " + rule);
+                    
+            // for each symbol in the rule
+            for (int i = 0; i < rule.size(); i++) {
+                Symbol S = rule.get(i);
+                // if it's a nonterminal, it might be the one we're looking for
+                if (S instanceof Nonterminal) {
+                    System.out.println("Found instance of nonterminal " + (Nonterminal)S);
+                    // indeed, we found our sought-after nonterminal in the sequence!
+                    if (N.equals((Nonterminal)S)) {
+                        System.out.println("Found nonterminal " + (Nonterminal)S + " in follow()");
+                        // thus, we add its First set to the Follow set result
+                        ArrayList<Symbol> followSymbols = new ArrayList<Symbol>(rule.subList(i+1, rule.size()));
+                        ArrayList<Token> first = first(followSymbols);
+                        boolean hasEpsilon = false;
+                        if (first.contains(new Token("EPSILON")))
+                            hasEpsilon = true;
+                        
+                        first.remove(new Token("EPSILON"));
+                        for (Token T : first)
+                            ret.add(T);
+                        // if the First set contains epsilon, then we also have to
+                        // add the Follow set of the current nonterminal to this Follow set.
+                        if (hasEpsilon) {
+                            for (Token T : follow(A))
+                                ret.add(T);
+                        }
+                    }//end if
+                }//end if
+            }//end for
+        }//end for
+        return ret;
+    }**/
+    
+    // page 178 Louden
+    private void computePredictSets() {
+        for (ProductionRule P : rules) {
+            ArrayList<Token> temp = new ArrayList<Token>();
+            
+            Nonterminal A = P.getNonterminal();
+            ArrayList<Symbol> alpha = P.getRule();
+            ArrayList<Token> first = first(alpha);
+            for (Token T : first)
+                temp.add(T);
+            
+            if (first.contains(new Token("EPSILON"))) {
+                for (Token T : followSets.get(A))
+                    temp.add(T);
+            }
+            
+            predictSets.put(P, temp);
+        }
+    }
     
 }//end class
