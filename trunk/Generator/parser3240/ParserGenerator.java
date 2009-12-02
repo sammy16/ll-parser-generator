@@ -50,8 +50,6 @@ public class ParserGenerator {
         String toks; //string to hold the terminals on the first line of the grammar file
         String nonTerms; //string to hold nonterminals on second line of the grammar file
         String grule=""; //holds each grammar rule as it is read from the grammar file
-        ArrayList<String> rmLeft; //array to hold the rules after they have had thier left recursion removed
-        ArrayList<String> rmCommon;  //the grammar with both left recusion removed and common prefix
         
         toks = grFileBuf.readLine();    //terminals
         Scanner genScanner = new Scanner(toks); //a scanner for breaking up the tokens
@@ -78,7 +76,6 @@ public class ParserGenerator {
         //test
         System.out.println("List of nonterminals = "+ nonterminalList);
         
-        //grFileBuf.readLine(); //read uneccessary line %Rules
         grule = grFileBuf.readLine();
         
         startSymbol = new Symbol(grule.substring(grule.indexOf(" ")+1,grule.indexOf('>')+1));
@@ -121,9 +118,6 @@ public class ParserGenerator {
             if (!nonterminalList.contains(key))
                 nonterminalList.add(key);
         }
-        
-        //now that common prefix is done we build the parsing table
-        buildParsingTable();
        
     }
     
@@ -400,16 +394,13 @@ public class ParserGenerator {
         while(gScan.hasNext())
         {
            rightSyms = gScan.next();
-           //test
-           //System.out.println("The right hand symbol is "+ rightSyms);
            rSideSyms = new ArrayList<Symbol>();
            symScan = new Scanner(rightSyms);
            //traverses symbols
            while(symScan.hasNext())
            {
                sym = symScan.next().trim();
-               //test
-               //System.out.println(sym);
+              
                //checks to see if the symbol is a nonterminal or a terminal then adds
                //that symbol to the right side of the production rule
                if(tokenList.contains((new Symbol(sym))))
