@@ -430,15 +430,15 @@ public class ParserGenerator {
     public ParsingTable buildParsingTable() {
         // compute first() sets
         System.out.println("Computing First sets...");
-        computeFirstSets();
+        firstSets = computeFirstSets();
         
         // compute follow() sets
         System.out.println("Computing Follow sets...");
-        computeFollowSets();
+        followSets = computeFollowSets();
         
         // compute predict() sets using first() and follow() sets
         System.out.println("Computing Predict sets...");
-        computePredictSets();
+        predictSets = computePredictSets();
         
         // testing
         // print First, Follow, and Predict sets
@@ -480,12 +480,14 @@ public class ParserGenerator {
         return LL1table;
     }
 
-    private void computeFirstSets() {
+    private HashMap<Nonterminal, ArrayList<Token>> computeFirstSets() {
+        HashMap<Nonterminal, ArrayList<Token>> firstSetsLocal = new HashMap<Nonterminal, ArrayList<Token>>();
         for (Nonterminal N : nonterminalList) {
             ArrayList<Token> temp = first(N);
-            firstSets.put(N, temp);
+            firstSetsLocal.put(N, temp);
             System.out.println("Added first set: " + N + " -> " + temp);
         }
+        return firstSetsLocal;
     }
     
     private ArrayList<Token> first(Symbol S) {
@@ -502,7 +504,7 @@ public class ParserGenerator {
             return singleton;
         }*/
         
-        ArrayList<Token> ret = new ArrayList<Token>();
+        HashSet<Token> ret = new HashSet<Token>();
         // okay, so it's a nonterminal
         // iterate through each rule for this nonterminal
         System.out.println((Nonterminal) S);
@@ -536,7 +538,9 @@ public class ParserGenerator {
             if (hasEpsilon)
                 ret.add(new Token("EPSILON"));
         }
-        return removeDups(ret);
+        ArrayList<Token> retAsList = new ArrayList<Token>();
+        retAsList.addAll(ret);
+        return retAsList;
     }
     
     /**
@@ -558,7 +562,11 @@ public class ParserGenerator {
        ArrayList<Nonterminal> keyList = new ArrayList<Nonterminal>();
        keyList.addAll(firstSets.keySet());
         
-       ArrayList<Token> ret = first(alpha.get(0));
+       // we use a set so that duplicates are automatically ignored
+       HashSet<Token> ret = new HashSet<Token>();
+       ArrayList<Token> firstAlpha = first(alpha.get(0));
+       ret.addAll(firstAlpha);
+       
        boolean hasEpsilon = ret.contains(new Token("EPSILON"));
        ret.remove(new Token("EPSILON"));
        int i = 1;
@@ -582,7 +590,10 @@ public class ParserGenerator {
            i++;
        }
        
-       return removeDups(ret);
+       //return removeDups(ret);
+       ArrayList<Token> retAsList = new ArrayList<Token>();
+       retAsList.addAll(ret);
+       return retAsList;
     }
     
     
@@ -592,13 +603,13 @@ public class ParserGenerator {
      * @param list
      * @return
      */
-    private ArrayList<Token> removeDups (ArrayList<Token> list) {
+    /**private ArrayList<Token> removeDups (ArrayList<Token> list) {
         ArrayList<Token> goodSet = new ArrayList<Token>();
         for (Token T : list)
             if (!goodSet.contains(T))
                 goodSet.add(T);
         return goodSet;
-    }
+    }**/
 
     /**private void computeFollowSets() {
         for (Nonterminal N : nonterminalList) {
@@ -609,7 +620,9 @@ public class ParserGenerator {
     }**/
 
     // Compute Follow sets for all nonterminals
-    private void  computeFollowSets() {
+    private HashMap<Nonterminal, ArrayList<Token>>  computeFollowSets() {
+        HashMap<Nonterminal, ArrayList<Token>> followSetsLocal = new HashMap<Nonterminal, ArrayList<Token>>();
+        
         ArrayList<Nonterminal> keyList = new ArrayList<Nonterminal>();
         keyList.addAll(allRules.keySet());
         // initialize follow sets here
@@ -617,10 +630,10 @@ public class ParserGenerator {
             if (N.getName().equals(startSymbol.getName())) {
                 ArrayList<Token> temp = new ArrayList<Token>();
                 temp.add(new Token("$"));
-                followSets.put(N, temp);
+                followSetsLocal.put(N, temp);
             }
             else {
-                followSets.put(N, new ArrayList<Token>());
+                followSetsLocal.put(N, new ArrayList<Token>());
             }
         }
         
@@ -638,11 +651,11 @@ public class ParserGenerator {
                         Symbol S = prodelements.get(i);
                         if (S instanceof Nonterminal) {
                             Nonterminal X = keyList.get(keyList.indexOf((Nonterminal)S));
-                            ArrayList<Token> xFollow = followSets.get(X);
+                            ArrayList<Token> xFollow = followSetsLocal.get(X);
                             ArrayList<Symbol> prodend = new ArrayList<Symbol>(prodelements.subList(i+1, k));
                             
                             if (allNullable(prodend)) {
-                                ArrayList<Token> nFollow = followSets.get(N);
+                                ArrayList<Token> nFollow = followSetsLocal.get(N);
                                 // add N follow set to X follow set; check for changes
                                 boolean changed2 = false;
                                 for (Token T : nFollow) {
@@ -665,12 +678,13 @@ public class ParserGenerator {
                                 }
                             }
                             changed = changed || changed3;
-                            followSets.put(X, xFollow);
+                            followSetsLocal.put(X, xFollow);
                         }//end if
                     }
                 }
             }
         }
+        return followSetsLocal;
     }
     
     // a symbol string is nullable if the whole thing can through some
@@ -745,7 +759,8 @@ public class ParserGenerator {
     }**/
     
     // page 178 Louden
-    private void computePredictSets() {
+    private HashMap<ProductionRule, ArrayList<Token>> computePredictSets() {
+        HashMap<ProductionRule, ArrayList<Token>> predictSetsLocal = new HashMap<ProductionRule, ArrayList<Token>>();
         for (ProductionRule P : rules) {
             ArrayList<Token> temp = new ArrayList<Token>();
             
@@ -760,8 +775,10 @@ public class ParserGenerator {
                     temp.add(T);
             }
             
-            predictSets.put(P, temp);
+            predictSetsLocal.put(P, temp);
         }
+        
+        return predictSetsLocal;
     }
     
 }//end class
