@@ -36,7 +36,7 @@ public class ParsingTable {
     }
     // add rule P to M[A, a] in the table
     public void addEntry(Nonterminal A, Token a, ProductionRule P) {
-        String cordinate = A.getName()+","+a.getName(); //the entry[A,a} in table
+        String cordinate = A.getName()+","+a.getName(); //the entry[A,a] in table
         //test
         //System.out.println("\nAttemptong to add at cordinate"+cordinate);
         //iterate to entry [A,a] in table and add the production rule P to that entry
@@ -74,7 +74,7 @@ public class ParsingTable {
         {
             //test
            terminalHeader =table[y][0].keySet().toString().substring(table[y][0].keySet().toString().indexOf(",")+1,table[y][0].keySet().toString().length()-1);
-           System.out.print("\t\t"+terminalHeader);
+           System.out.print(" "+terminalHeader);
 
         }
         System.out.println();
@@ -82,20 +82,32 @@ public class ParsingTable {
         {
             //print nonterminal for the row
             nontermHeader = table[0][x].keySet().toString().substring(1,table[0][x].keySet().toString().indexOf(","));
-            System.out.print(nontermHeader+"\t");
+            System.out.print(nontermHeader+"  ");
             
             for(int y=0;y<columns;y++)
             {
                 //print row of rules in coresponding location
-                rowRule = table[y][x].get(table[y][x].keySet().toArray()[0]).toString().substring(1,table[y][x].get(table[y][x].keySet().toArray()[0]).toString().length()-1);
+                rowRule = table[y][x].get(table[y][x].keySet().toArray()[0]).toString();
                 if(rowRule.length()==0)
                 {
-                    System.out.print("\t");
+                    //System.out.print("\t");
                 }
-                System.out.print("\t"+rowRule);
+                System.out.print(rowRule+"  ");
                 
             }
             System.out.println();
         }
     }
+
+    /**public void printHTMLTable()
+    {
+        String html = "<table>";
+        
+        for (int y = 0; y < rows; y++) {
+            for (int x = 0; x < columns; x++) {
+                
+                
+            }
+        }
+    }**/
 }

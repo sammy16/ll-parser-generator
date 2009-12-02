@@ -28,6 +28,11 @@ public class Main {
         
         //hiron grammar test
 //        pg.feed("C:\\Users\\Hiron\\Documents\\Gatech09Fall\\Compilers\\Final Project\\leftfac.ll1");
+        //pg.feed("C:\\leftfac.ll1");
+        pg.feed("C:\\louden_pg178.ll1");
+        
+        ParsingTable parseTable = pg.buildParsingTable();
+        parseTable.printTable();
         
         //pg.feed("/Users/Jurojin/CS3240/Generator/parser3240/grammar.txt");
 
