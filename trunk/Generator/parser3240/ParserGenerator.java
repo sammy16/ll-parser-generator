@@ -617,6 +617,7 @@ public class ParserGenerator {
         ArrayList<Nonterminal> keyList = new ArrayList<Nonterminal>();
         keyList.addAll(allRules.keySet());
         // initialize follow sets here
+        // follow(startSymbol) = {$}, and the rest are empty
         for (Nonterminal N : keyList) {
             if (N.getName().equals(startSymbol.getName())) {
                 ArrayList<Token> temp = new ArrayList<Token>();
@@ -630,6 +631,8 @@ public class ParserGenerator {
         
         ArrayList<Token> ret = new ArrayList<Token>();
         
+        // we keep track of whether any changes are made to the follow sets during each pass
+        // when no changes have been made, we're at stasis and we terminate
         boolean changed = true;
         // while the follow sets are still "active" (changing), keep making passes
         while (changed) {
