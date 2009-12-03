@@ -84,7 +84,7 @@ public class ParsingTable {
     public void printTable()
     {
         String nontermHeader,terminalHeader,rowRule;
-        largestEntrySize = largestEntrySize + 2*columns;
+        largestEntrySize = largestEntrySize + 2*columns-2;
         //print the row of terminals
         System.out.print(String.format("%1$-" + largestNonterminal + "s"," ") + "  ");
         for(int y=0;y<columns;y++)
