@@ -24,15 +24,18 @@ public class ParsingTable {
         tokens = myTokens;
         nonTerms = myNonTerms;
         table = (HashMap<String,ArrayList<ProductionRule>>[][]) new HashMap[numTokens][numNonterminals];
+        
+        // find largest nonterminal by name length
+        for (int y=0;y<rows;y++) {
+            if(largestNonterminal < nonTerms.get(y).getName().length())
+                largestNonterminal = nonTerms.get(y).getName().length();
+        }
+        
+        // loop through and initialize table
         for(int x=0;x<columns;x++)
         {
-            if(largestNonterminal < nonTerms.get(x).getName().length())
-            {
-                largestNonterminal = nonTerms.get(x).getName().length();
-            }
             for(int y=0;y<rows;y++)
             {
-                
                 table[x][y] = new HashMap<String,ArrayList<ProductionRule>>();
                 table[x][y].put(myNonTerms.get(y).getName()+","+myTokens.get(x).getName(),new ArrayList<ProductionRule>());
             }
