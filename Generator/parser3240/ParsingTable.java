@@ -119,15 +119,41 @@ public class ParsingTable {
         }
     }
 
-    /**public void printHTMLTable()
+    public void printHTMLTable()
     {
-        String html = "<table>";
+        String html = "<table border=1>";
+        html += "<tr><td>M[N,T]</td>";
         
-        for (int y = 0; y < rows; y++) {
-            for (int x = 0; x < columns; x++) {
-                
+        for (Token T : tokens) {
+            html += "<td>" + T + "</td>";
+        }
+        html += "</tr>";
+        
+        for(int x=0;x<rows;x++) {
+            html += "<tr>";
+            //first entry in the row is the row's nonterminal
+            html += "<td>" + fixHTML(nonTerms.get(x).toString()) + "</td>";
+            
+            //System.out.print(String.format("%1$-" + largestNonterminal + "s",nontermHeader) + "  ");
+            
+            for(int y=0;y<columns;y++) {
+                //print row of rules in coresponding location
+                String rowRule = table[y][x].get(table[y][x].keySet().toArray()[0]).toString();
+                //if(rowRule.length()==0)
+                //System.out.print(String.format("%1$-" + largestEntrySize + "s",rowRule));
+                html += "<td>" + fixHTML(rowRule) + "</td>";
                 
             }
+            html += "</tr>";
         }
-    }**/
+        html += "</table>";
+        System.out.print(html);
+    }
+    
+    // nonterminals like "<exp>" look like HTML tags, so we have to replace
+    // > and < with metacharacters &lt; and &gt;
+    private String fixHTML(String tag) {
+        return tag.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+    }
+
 }
