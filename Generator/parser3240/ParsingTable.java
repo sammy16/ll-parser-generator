@@ -12,7 +12,7 @@ import java.util.*;
 public class ParsingTable {
     HashMap<String,ArrayList<ProductionRule>>[][] table; //2d array that will hold hashtable productionrules as entries
     private int rows;
-    private int columns;
+    private int columns,largestEntrySize,largestNonterminal;
     ArrayList<Token> tokens;
     ArrayList<Nonterminal> nonTerms;
     
@@ -26,14 +26,15 @@ public class ParsingTable {
         table = (HashMap<String,ArrayList<ProductionRule>>[][]) new HashMap[numTokens][numNonterminals];
         for(int x=0;x<columns;x++)
         {
+            if(largestNonterminal < nonTerms.get(x).getName().length())
+            {
+                largestNonterminal = nonTerms.get(x).getName().length();
+            }
             for(int y=0;y<rows;y++)
             {
-                //test
-                //System.out.println(x+" "+y);
+                
                 table[x][y] = new HashMap<String,ArrayList<ProductionRule>>();
                 table[x][y].put(myNonTerms.get(y).getName()+","+myTokens.get(x).getName(),new ArrayList<ProductionRule>());
-                //test
-                //System.out.println(table[x][y].keySet());
             }
         }
         
@@ -41,11 +42,11 @@ public class ParsingTable {
     // add rule P to M[A, a] in the table
     public void addEntry(Nonterminal A, Token a, ProductionRule P) {
         String cordinate = A.getName()+","+a.getName(); //the entry[A,a] in table
-        //test
-        //System.out.println("\nAttemptong to add at cordinate"+cordinate);
+        int numRules;   //use these to figure out space padding for printing the table
         //iterate to entry [A,a] in table and add the production rule P to that entry
         for(int x=0;x<columns;x++)
         {
+            numRules = 0;
             for(int y=0;y<rows;y++)
             {
                 //test
@@ -54,11 +55,17 @@ public class ParsingTable {
                 if(table[x][y].containsKey(cordinate))
                 {
                     table[x][y].get(cordinate).add(P);
+                    numRules++;
+                    if(P.getRule().toString().length()*numRules > largestEntrySize)
+                    {
+                      largestEntrySize = P.getRule().toString().length()*numRules;   
+                    }
                     //test
-                   // System.out.println("added " + P.getNonterminal()+"-> "+P.getRule());
+                    // System.out.println("added " + P.getNonterminal()+"-> "+P.getRule());
                     //System.out.println("Table entry is now: " + table[x][y].get(cordinate));
                 }
             }
+           
         }
         return;
     }
@@ -73,16 +80,18 @@ public class ParsingTable {
         return table;
     }
     
-    //printing method to display table in a grid, first row is are terminals and first column is nonterminals
+    //printing method to display table in a grid, first row is terminals and first column is nonterminals
     public void printTable()
     {
         String nontermHeader,terminalHeader,rowRule;
+        largestEntrySize = largestEntrySize + 2*columns;
         //print the row of terminals
+        System.out.print(String.format("%1$-" + largestNonterminal + "s"," ") + "  ");
         for(int y=0;y<columns;y++)
         {
             //test
            terminalHeader =table[y][0].keySet().toString().substring(table[y][0].keySet().toString().indexOf(",")+1,table[y][0].keySet().toString().length()-1);
-           System.out.print(" "+terminalHeader);
+           System.out.print(String.format("%1$-" + largestEntrySize + "s",terminalHeader));
 
         }
         System.out.println();
@@ -90,7 +99,7 @@ public class ParsingTable {
         {
             //print nonterminal for the row
             nontermHeader = table[0][x].keySet().toString().substring(1,table[0][x].keySet().toString().indexOf(","));
-            System.out.print(nontermHeader+"  ");
+            System.out.print(String.format("%1$-" + largestNonterminal + "s",nontermHeader) + "  ");
             
             for(int y=0;y<columns;y++)
             {
@@ -100,7 +109,7 @@ public class ParsingTable {
                 {
                     //System.out.print("\t");
                 }
-                System.out.print(rowRule+"  ");
+                System.out.print(String.format("%1$-" + largestEntrySize + "s",rowRule));
                 
             }
             System.out.println();
