@@ -27,31 +27,24 @@ public class Main {
         ParserGenerator pg = new ParserGenerator();
         
         //hiron grammar test
-//        pg.feed("C:\\Users\\Hiron\\Documents\\Gatech09Fall\\Compilers\\Final Project\\leftfac.ll1");
+        //pg.feed("C:\\Users\\Hiron\\Documents\\Gatech09Fall\\Compilers\\Final Project\\leftfac.ll1");
         //pg.feed("C:\\leftfac.ll1");
+
+        //pg.feed("C:\\louden_pg178.ll1");
+
         //pg.feed("C:\\leftrec.ll1");
         //pg.feed("C:\\louden_pg178.ll1");
         //pg.feed("C:\\beta_testcase.ll1");
         //pg.feed("C:\\tiny.ll1");
+
+        //rachel test
+        //pg.feed("/Users/Jurojin/CS3240/Generator/parser3240/louden_pg178.txt");
+        //pg.feed("/Users/Jurojin/CS3240/Generator/parser3240/leftfac-3.txt");
+        //pg.feed("/Users/Jurojin/CS3240/Generator/parser3240/grammar.txt");
         
         //ParsingTable parseTable = pg.buildParsingTable();
         //parseTable.printTable();
-        
-        //pg.feed("/Users/Jurojin/CS3240/Generator/parser3240/grammar.txt");
-
-        //testing
-       //pg.feed("/Users/Jurojin/CS3240/Generator/parser3240/grammar.txt");
-        
-//        ArrayList<ProductionRule> pr;
-//        pr= pg.getProductionRules("statement-list : + - | (");
-//        for (ProductionRule r : pr)
-//        {
-//        	System.out.println("Production Rule Name: " +r.getNonterminal().getName() + " Production Rule: " 
-//        			+ r.getRule());
-//        
-//        }
-
-        
+  
         // just testing subversion commit
         
         ParserGenerator parserGen = new ParserGenerator();
