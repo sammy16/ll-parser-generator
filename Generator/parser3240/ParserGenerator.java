@@ -41,6 +41,10 @@ public class ParserGenerator {
         predictSets = new HashMap<ProductionRule, ArrayList<Token>>();
     }
     
+    public Symbol getStartSymbol() {
+        return startSymbol;
+    }
+    
     // perhaps rather than grammarFile, this should take a single
     // line as input? That way you could add more rules later, rather
     // than doing it all as a single glob.
@@ -98,6 +102,8 @@ public class ParserGenerator {
         	}
             
         }while((grule = grFileBuf.readLine()) != null);
+        
+        //System.out.println(gRules);
         
         System.out.println("... after removing left recursion, we have:");
         allRules = removeLeftRecursion(gRules); //RemoveLeftRecursion returns the rules hashed against their nonterminals.    
@@ -365,13 +371,14 @@ public class ParserGenerator {
     	boolean hasLeftRecursion = false;
 		for(ProductionRule pr : matchingRules)//clone so there's no iterator mishap
 		{
-			Symbol startingSymbol = pr.getRule().get(0);
-			
-			if(startingSymbol.equals(key)) //this means that we are dealing with a rule that has Left
-			{												//recursion
-				System.out.println(pr);	
-    			hasLeftRecursion = true;            		
-			}
+                    System.out.println(pr);
+                    Symbol startingSymbol = pr.getRule().get(0);
+                    //System.out.println("startingSymbol = " + startingSymbol);
+                    if(startingSymbol.equals(key)) //this means that we are dealing with a rule that has Left
+                    {												//recursion
+                        //System.out.println(pr);	
+                        hasLeftRecursion = true;            		
+                    }
 		}
 		return hasLeftRecursion;
     }
