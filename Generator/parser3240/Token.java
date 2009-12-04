@@ -19,6 +19,11 @@ public class Token extends Symbol {
     public String getType(){return type;}
     
     @Override
+    public int hashCode () {
+        return super.hashCode();
+    }
+    
+    @Override
     public boolean equals (Object otherObj) {
         /**if(!(otherObj instanceof Token))
         {
