@@ -79,7 +79,7 @@ public class ParserGenerator {
         grule = grFileBuf.readLine();
         
         startSymbol = new Symbol(grule.substring(grule.indexOf(" ")+1,grule.indexOf('>')+1));
-        System.out.println("Start symbole = "+ startSymbol);
+        System.out.println("Start symbol = "+ startSymbol);
         //takes each grammar rule one at a time and removes left recursion
         //then adds the new rules created from the recusion removal to a list representing the new grammar 
         
@@ -99,19 +99,21 @@ public class ParserGenerator {
             
         }while((grule = grFileBuf.readLine()) != null);
         
+        System.out.println("... after removing left recursion, we have:");
         allRules = removeLeftRecursion(gRules); //RemoveLeftRecursion returns the rules hashed against their nonterminals.    
+        printGrammar();
         
         //once left recursion has been removed from the grammar then common prefix must be fixed
         allRules = removeCommonPrefix(allRules);
-        System.out.println("allRules = ");
-        System.out.println(allRules);
+        System.out.println("... and, finally, after removing common prefix:");
+        printGrammar();
         
         // okay, now all our rules are fixed.
         // allRules is the hashmap from nonterminal to a list of production rules
         // we use allRules to create "rules", which is a straight-up list of rules
         ArrayList<Nonterminal> keyList = new ArrayList<Nonterminal>();
         keyList.addAll(allRules.keySet());
-        System.out.println("keyList = " + keyList);
+        //System.out.println("keyList = " + keyList);
         for (Nonterminal key : keyList) {
             rules.addAll(allRules.get(key));
             
@@ -248,8 +250,8 @@ public class ParserGenerator {
     
     private void getCommonPrefix(ArrayList<Symbol> commonPrefix, ArrayList<Symbol> rule1, ArrayList<Symbol> rule2){
     	
-        System.out.println("rule1 = " + rule1);
-        System.out.println("rule2 = " + rule2);
+        //System.out.println("rule1 = " + rule1);
+        //System.out.println("rule2 = " + rule2);
     	if(rule1.size() == 0 || rule2.size() == 0 || rule1.equals(rule2) ){
     		return;
     	}
@@ -433,19 +435,13 @@ public class ParserGenerator {
         
         // testing
         // print First, Follow, and Predict sets
-        ArrayList<Nonterminal> keyList = new ArrayList<Nonterminal>();
-        keyList.addAll(firstSets.keySet());
-        for (Nonterminal N : keyList)
+        for (Nonterminal N : firstSets.keySet())
             System.out.println("first(" + N + ") = " + firstSets.get(N));
         
-        ArrayList<Nonterminal> keyList2 = new ArrayList<Nonterminal>();
-        keyList2.addAll(followSets.keySet());
-        for (Nonterminal N : keyList2)
+        for (Nonterminal N : followSets.keySet())
             System.out.println("follow(" + N + ") = " + followSets.get(N));
         
-        ArrayList<ProductionRule> keyList3 = new ArrayList<ProductionRule>();
-        keyList3.addAll(predictSets.keySet());
-        for (ProductionRule R : keyList3)
+        for (ProductionRule R : predictSets.keySet())
             System.out.println("predict(" + R + ") = " + predictSets.get(R));
         
         // initialize new ParsingTable
@@ -476,7 +472,7 @@ public class ParserGenerator {
         for (Nonterminal N : nonterminalList) {
             ArrayList<Token> temp = first(N);
             firstSetsLocal.put(N, temp);
-            System.out.println("Added first set: " + N + " -> " + temp);
+            //System.out.println("Added first set: " + N + " -> " + temp);
         }
         return firstSetsLocal;
     }
@@ -489,22 +485,10 @@ public class ParserGenerator {
             return singleton;
         }
         
-        /**if (S instanceof Symbol && S.equals(Symbol.EPSILON)) {
-            ArrayList<Token> singleton = new ArrayList<Token>();
-            singleton.add(new Token("EPSILON"));
-            return singleton;
-        }*/
-        
         HashSet<Token> ret = new HashSet<Token>();
         // okay, so it's a nonterminal
         // iterate through each rule for this nonterminal
-        System.out.println((Nonterminal) S);
-        ArrayList<Nonterminal> keyList = new ArrayList<Nonterminal>();
-        keyList.addAll(allRules.keySet());
-        
-        System.out.println(keyList.indexOf((Nonterminal) S));
-        //for (ProductionRule R : allRules.get((Nonterminal) S)) {
-        for (ProductionRule R : allRules.get(keyList.get(keyList.indexOf((Nonterminal)S)))) {
+        for (ProductionRule R : allRules.get((Nonterminal)S)) {
             // okay, we are on a particular rule
             ArrayList<Symbol> symbols = R.getRule();
             boolean hasEpsilon = false;
@@ -542,7 +526,7 @@ public class ParserGenerator {
      * @return
      */
     private ArrayList<Token> first(ArrayList<Symbol> alpha) {
-        System.out.println("first(" + alpha + ") was called");
+        //System.out.println("first(" + alpha + ") was called");
         
         if (alpha.size() == 0) {   
             ArrayList<Token> temp = new ArrayList<Token>();
@@ -550,9 +534,6 @@ public class ParserGenerator {
             return temp;
         }
        
-       ArrayList<Nonterminal> keyList = new ArrayList<Nonterminal>();
-       keyList.addAll(firstSets.keySet());
-        
        // we use a set so that duplicates are automatically ignored
        HashSet<Token> ret = new HashSet<Token>();
        ArrayList<Token> firstAlpha = first(alpha.get(0));
@@ -566,8 +547,8 @@ public class ParserGenerator {
            Symbol nextSymbol = alpha.get(i);
            // if it's a nonterminal, it's already computed and cached
            if (nextSymbol instanceof Nonterminal) {
-               nextFirstSet = firstSets.get(keyList.get(keyList.indexOf((Nonterminal)nextSymbol)));
-               System.out.println("nextFirstSet = " + nextFirstSet);
+               nextFirstSet = firstSets.get((Nonterminal)nextSymbol);
+               //System.out.println("nextFirstSet = " + nextFirstSet);
            }
            // if it's a terminal, it will be computed instantly anyway
            else
@@ -586,39 +567,14 @@ public class ParserGenerator {
        retAsList.addAll(ret);
        return retAsList;
     }
-    
-    
-     /**
-     * Remove duplicates from an ArrayList<Token>.
-     * Probably not the most efficient way.
-     * @param list
-     * @return
-     */
-    /**private ArrayList<Token> removeDups (ArrayList<Token> list) {
-        ArrayList<Token> goodSet = new ArrayList<Token>();
-        for (Token T : list)
-            if (!goodSet.contains(T))
-                goodSet.add(T);
-        return goodSet;
-    }**/
-
-    /**private void computeFollowSets() {
-        for (Nonterminal N : nonterminalList) {
-            ArrayList<Token> temp = follow(N);
-            System.out.println("Follow set added: " + N + " = " + temp);
-            followSets.put(N, temp);
-        }
-    }**/
 
     // Compute Follow sets for all nonterminals
-    private HashMap<Nonterminal, ArrayList<Token>>  computeFollowSets() {
+    private HashMap<Nonterminal, ArrayList<Token>> computeFollowSets() {
         HashMap<Nonterminal, ArrayList<Token>> followSetsLocal = new HashMap<Nonterminal, ArrayList<Token>>();
         
-        ArrayList<Nonterminal> keyList = new ArrayList<Nonterminal>();
-        keyList.addAll(allRules.keySet());
         // initialize follow sets here
         // follow(startSymbol) = {$}, and the rest are empty
-        for (Nonterminal N : keyList) {
+        for (Nonterminal N : nonterminalList) {
             if (N.getName().equals(startSymbol.getName())) {
                 ArrayList<Token> temp = new ArrayList<Token>();
                 temp.add(new Token("$"));
@@ -637,14 +593,14 @@ public class ParserGenerator {
         // while the follow sets are still "active" (changing), keep making passes
         while (changed) {
             changed = false;
-            for (Nonterminal N : keyList) {
+            for (Nonterminal N : nonterminalList) {
                 for (ProductionRule prodn : allRules.get(N)) {
                     ArrayList<Symbol> prodelements = prodn.getRule();
                     int k = prodelements.size();
                     for (int i = 0; i < k; i++) {
                         Symbol S = prodelements.get(i);
                         if (S instanceof Nonterminal) {
-                            Nonterminal X = keyList.get(keyList.indexOf((Nonterminal)S));
+                            Nonterminal X = (Nonterminal)S;
                             ArrayList<Token> xFollow = followSetsLocal.get(X);
                             ArrayList<Symbol> prodend = new ArrayList<Symbol>(prodelements.subList(i+1, k));
                             
@@ -684,95 +640,50 @@ public class ParserGenerator {
     // a symbol string is nullable if the whole thing can through some
     // series of productions be mapped to epsilon
     private boolean allNullable(ArrayList<Symbol> symbols) {
-        ArrayList<Nonterminal> keyList = new ArrayList<Nonterminal>();
-        keyList.addAll(firstSets.keySet());
         for (Symbol S : symbols) {
             if (S instanceof Token && !S.getName().equals("EPSILON"))
                 return false;
             if (S instanceof Nonterminal) {
-                System.out.println((Nonterminal) S);
-                int index = keyList.indexOf((Nonterminal) S);
-                System.out.println("found at index " + index);
-                if (!firstSets.get(keyList.get(keyList.indexOf((Nonterminal)S))).contains(new Token("EPSILON")))
+                if (!firstSets.get((Nonterminal)S).contains(new Token("EPSILON")))
                     return false;
             }
         }
         return true;
     }
-            
-    // Compute the follow() set for a given nonterminal N by
-    // iterating through every single production rule.
-    /**private ArrayList<Token> follow(Nonterminal N) {
-        System.out.println("Entered function follow(" + N + ")");
-        ArrayList<Token> ret = new ArrayList<Token>();
-        
-        if (N.getName().equals(startSymbol.getName()))
-            ret.add(new Token("$"));
-        
-        System.out.println("rules = " + rules);
-        
-        // for every single production rule in the grammar...
-        for (ProductionRule P : rules) {
-            // current nonterminal
-            Nonterminal A = P.getNonterminal();
-            // current rule
-            ArrayList<Symbol> rule = P.getRule();
-
-            System.out.println("follow(): iterating rule: "  + A + " -> " + rule);
-                    
-            // for each symbol in the rule
-            for (int i = 0; i < rule.size(); i++) {
-                Symbol S = rule.get(i);
-                // if it's a nonterminal, it might be the one we're looking for
-                if (S instanceof Nonterminal) {
-                    System.out.println("Found instance of nonterminal " + (Nonterminal)S);
-                    // indeed, we found our sought-after nonterminal in the sequence!
-                    if (N.equals((Nonterminal)S)) {
-                        System.out.println("Found nonterminal " + (Nonterminal)S + " in follow()");
-                        // thus, we add its First set to the Follow set result
-                        ArrayList<Symbol> followSymbols = new ArrayList<Symbol>(rule.subList(i+1, rule.size()));
-                        ArrayList<Token> first = first(followSymbols);
-                        boolean hasEpsilon = false;
-                        if (first.contains(new Token("EPSILON")))
-                            hasEpsilon = true;
-                        
-                        first.remove(new Token("EPSILON"));
-                        for (Token T : first)
-                            ret.add(T);
-                        // if the First set contains epsilon, then we also have to
-                        // add the Follow set of the current nonterminal to this Follow set.
-                        if (hasEpsilon) {
-                            for (Token T : follow(A))
-                                ret.add(T);
-                        }
-                    }//end if
-                }//end if
-            }//end for
-        }//end for
-        return ret;
-    }**/
     
     // page 178 Louden
     private HashMap<ProductionRule, ArrayList<Token>> computePredictSets() {
         HashMap<ProductionRule, ArrayList<Token>> predictSetsLocal = new HashMap<ProductionRule, ArrayList<Token>>();
+        // we compute the predict set for each production rule in the grammar
         for (ProductionRule P : rules) {
             ArrayList<Token> temp = new ArrayList<Token>();
             
             Nonterminal A = P.getNonterminal();
             ArrayList<Symbol> alpha = P.getRule();
+            // to start, we get the first set of the right-hand side
             ArrayList<Token> first = first(alpha);
             for (Token T : first)
                 temp.add(T);
             
+            // if that first set contains alpha, then we also add the follow
+            // set to the predict set.
             if (first.contains(new Token("EPSILON"))) {
                 for (Token T : followSets.get(A))
                     temp.add(T);
             }
-            
+            // hash it up!
             predictSetsLocal.put(P, temp);
         }
         
         return predictSetsLocal;
+    }
+    
+    public void printGrammar() {
+        for (Nonterminal N : allRules.keySet()) {
+            for (ProductionRule R : allRules.get(N)) {
+                System.out.println(R);
+            }
+        }
     }
     
 }//end class
