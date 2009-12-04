@@ -30,4 +30,9 @@ public class Nonterminal extends Symbol {
             return false;
         }
     }
+    
+    @Override
+    public int hashCode () {
+        return super.hashCode();
+    }
 }
