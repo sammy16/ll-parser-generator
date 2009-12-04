@@ -30,7 +30,12 @@ public class Symbol{
         Symbol S2 = (Symbol) otherObj;
         return (S2.getName().equals(this.getName()));
     }
-
+    
+    @Override
+    public int hashCode () {
+        return this.getName().hashCode();
+    }
+    
     @Override
     public String toString()
     {
