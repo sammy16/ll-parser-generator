@@ -74,7 +74,13 @@ public class ParsingTable {
     }
     
     public ProductionRule getEntry(Nonterminal N, Token T) {
-        return table[tokens.indexOf(T)][nonTerms.indexOf(N)].get(N+","+T).get(0);
+        try {
+            return table[tokens.indexOf(T)][nonTerms.indexOf(N)].get(N+","+T).get(0);
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        } catch (NullPointerException e2) {
+            return null;
+        }
     }
     
     //get private variable table
@@ -151,7 +157,7 @@ public class ParsingTable {
     }
     
     // nonterminals like "<exp>" look like HTML tags, so we have to replace
-    // > and < with metacharacters &lt; and &gt;
+    // > and < with metacharacters &gt; and &lt;
     private String fixHTML(String tag) {
         return tag.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
     }
