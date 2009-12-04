@@ -29,6 +29,21 @@ public class ProductionRule {
     @Override
     public String toString()
     {
-        return N + ":" + rule; 
+        return N + " : " + rule; 
+    }
+    
+    @Override
+    public boolean equals (Object otherObj) {
+        try {
+            ProductionRule PR2 = (ProductionRule) otherObj;
+            return N.equals(PR2.getNonterminal()) && rule.equals(PR2.getRule());
+        } catch (ClassCastException e) {
+            return false;
+        }
+    }
+    
+    @Override
+    public int hashCode() {
+        return (N.toString() + rule.toString()).hashCode();
     }
 }
