@@ -23,32 +23,22 @@ public class Main {
     	// This is the Main method of JLex which allows us to generate 
     	// a scanner
     	// JLex.Main.main(arg)
-	
-        ParserGenerator pg = new ParserGenerator();
-        
-        //hiron grammar test
-        //pg.feed("C:\\Users\\Hiron\\Documents\\Gatech09Fall\\Compilers\\Final Project\\leftfac.ll1");
-        //pg.feed("C:\\leftfac.ll1");
-
-        //pg.feed("C:\\louden_pg178.ll1");
-
-        //pg.feed("C:\\leftrec.ll1");
-        //pg.feed("C:\\louden_pg178.ll1");
-        //pg.feed("C:\\beta_testcase.ll1");
-        //pg.feed("C:\\tiny.ll1");
-
-        //rachel test
-        //pg.feed("/Users/Jurojin/CS3240/Generator/parser3240/louden_pg178.txt");
-        //pg.feed("/Users/Jurojin/CS3240/Generator/parser3240/leftfac-3.txt");
-        //pg.feed("/Users/Jurojin/CS3240/Generator/parser3240/grammar.txt");
-        
-        //ParsingTable parseTable = pg.buildParsingTable();
-        //parseTable.printTable();
-  
-        // just testing subversion commit
+    	
+    	//a run of the scanner
+    	String progLoc = "C:\\test-prog.txt";
+    	TINYLexer scanner = TINYLexer.GetLexer(progLoc);
+    	
+    	//the tokens gotten from the program.
+    	//reset the scanner
+    	scanner.yypushback(scanner.yylength());
+    	ArrayList<String> programTokens = new ArrayList<String>();
+    	  do {
+              programTokens.add(scanner.yylex());
+            } while (!scanner.isZzAtEOF());
+    
         
         ParserGenerator parserGen = new ParserGenerator();
-        ILexer lexer = new Lexer();
+      
         String fileContents = "";
         ArrayList<Token> tokens = new ArrayList<Token>();
         //EPSILON package body IDENT is separate SEMICOLON EPSILON
@@ -63,7 +53,8 @@ public class Main {
         //tokens = lexer.process(fileContents);
         
         String grammar = "";
-        parserGen.feed("C:\\final grammar.ll1");
+        parserGen.feed("C:\\Users\\Hiron\\Documents\\Gatech09Fall\\Compilers\\Final Project\\leftfac.ll1");
+//        parserGen.feed("C:\\final grammar.ll1");
         //parserGen.feed("C:\\louden_pg178.ll1");
         
         ParsingTable parseTable = parserGen.buildParsingTable();
