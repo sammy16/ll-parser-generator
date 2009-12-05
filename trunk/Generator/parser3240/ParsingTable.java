@@ -5,6 +5,7 @@
 
 package parser3240;
 import java.util.*;
+import java.io.*;
 /**
  *
  * @author mpn
@@ -140,7 +141,14 @@ public class ParsingTable {
             html += "</tr>";
         }
         html += "</table>";
-        System.out.print(html);
+        try {
+            FileWriter fw = new FileWriter(new File("ptable.html"));
+            fw.write(html);
+            System.out.println("The parse table has been written to ptable.html in the project directory.");
+        } catch (IOException e) {
+            System.out.println("File writing failed. Please make sure you have write access to the project directory.");
+        }
+        //System.out.print(html);
     }
     
     // nonterminals like "<exp>" look like HTML tags, so we have to replace
