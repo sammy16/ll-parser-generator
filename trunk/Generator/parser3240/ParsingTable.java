@@ -52,9 +52,6 @@ public class ParsingTable {
             numRules = 0;
             for(int y=0;y<rows;y++)
             {
-                //test
-                //System.out.println(table[x][y].keySet());
-                //System.out.println("Does add to this cordinate? "+ table[x][y].containsKey(cordinate));
                 if(table[x][y].containsKey(cordinate))
                 {
                     table[x][y].get(cordinate).add(P);
@@ -64,9 +61,6 @@ public class ParsingTable {
                       largestEntrySize = P.toString().length()*numRules;  
                       System.out.println(P.toString());
                     }
-                    //test
-                    // System.out.println("added " + P.getNonterminal()+"-> "+P.getRule());
-                    //System.out.println("Table entry is now: " + table[x][y].get(cordinate));
                 }
             }
            
@@ -95,12 +89,10 @@ public class ParsingTable {
     {
         String nontermHeader,terminalHeader,rowRule;
         largestEntrySize = largestEntrySize + 2*(columns-3);
-         System.out.println("NONTERMInal size "+largestEntrySize);
         //print the row of terminals
         System.out.print(String.format("%1$-" + largestNonterminal + "s"," ") + "  ");
         for(int y=0;y<columns;y++)
         {
-            //test
            terminalHeader =table[y][0].keySet().toString().substring(table[y][0].keySet().toString().indexOf(",")+1,table[y][0].keySet().toString().length()-1);
            System.out.print(String.format("%1$-" + largestEntrySize + "s",terminalHeader));
 
@@ -116,10 +108,6 @@ public class ParsingTable {
             {
                 //print row of rules in coresponding location
                 rowRule = table[y][x].get(table[y][x].keySet().toArray()[0]).toString();
-                if(rowRule.length()==0)
-                {
-                    //System.out.print("\t");
-                }
                 System.out.print(String.format("%1$-" + largestEntrySize + "s",rowRule));
                 
             }
@@ -142,13 +130,10 @@ public class ParsingTable {
             //first entry in the row is the row's nonterminal
             html += "<td>" + fixHTML(nonTerms.get(x).toString()) + "</td>";
             
-            //System.out.print(String.format("%1$-" + largestNonterminal + "s",nontermHeader) + "  ");
             
             for(int y=0;y<columns;y++) {
                 //print row of rules in coresponding location
                 String rowRule = table[y][x].get(table[y][x].keySet().toArray()[0]).toString();
-                //if(rowRule.length()==0)
-                //System.out.print(String.format("%1$-" + largestEntrySize + "s",rowRule));
                 html += "<td>" + fixHTML(rowRule) + "</td>";
                 
             }
