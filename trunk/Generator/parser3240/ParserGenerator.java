@@ -66,7 +66,11 @@ public class ParserGenerator {
         }
         System.out.println("token list = " + tokenList);
         
-        nonTerms = grFileBuf.readLine();       //nonterminals
+        // consume possible blank line
+        nonTerms = grFileBuf.readLine();
+        
+        if (nonTerms.equals(""))
+            nonTerms = grFileBuf.readLine();       //nonterminals
         genScanner = new Scanner(nonTerms);
         
         genScanner.next();  //consume unecessary %Non-terminals word
@@ -79,10 +83,19 @@ public class ParserGenerator {
       
         System.out.println("List of nonterminals = "+ nonterminalList);
         
+        // consume possible blank line
         grule = grFileBuf.readLine();
+        
+        if (grule.equals(""))
+            grule = grFileBuf.readLine();
         
         startSymbol = new Symbol(grule.substring(grule.indexOf(" ")+1,grule.indexOf('>')+1));
         System.out.println("Start symbol = "+ startSymbol);
+        
+        //System.out.println("!!!" + getProductionRules("<compilation> : IDENT | "));
+        
+        
+        
         //takes each grammar rule one at a time and removes left recursion
         //then adds the new rules created from the recusion removal to a list representing the new grammar 
         
@@ -95,24 +108,27 @@ public class ParserGenerator {
         		break;
         	}
         	
-        	if(!grule.startsWith("%"))
+                // ignore %Rules line as well as blank lines or lines w/ only spaces
+        	if(!grule.startsWith("%") && !grule.trim().equals(""))
         	{
                     //insert Epsilon token into the right places in the grammar rule
                     //and add the grammar rule to the list
-        		gRules.add(insertEpsilon(grule));
+        		//gRules.add(insertEpsilon(grule));
+                    gRules.add(grule);
         	}
             
         }while((grule = grFileBuf.readLine()) != null);
-        
+        //for (String gr : gRules)
+        //    System.out.println(gr);
         
         System.out.println("... after removing left recursion, we have:");
         allRules = removeLeftRecursion(gRules); //RemoveLeftRecursion returns the rules hashed against their nonterminals.    
-        printGrammar();
+        //printGrammar();
         
         //once left recursion has been removed from the grammar then common prefix must be fixed
         allRules = removeCommonPrefix(allRules);
         System.out.println("... and, finally, after removing common prefix:");
-        printGrammar();
+        //printGrammar();
         
         // okay, now all our rules are fixed.
         // allRules is the hashmap from nonterminal to a list of production rules
@@ -326,7 +342,7 @@ public class ParserGenerator {
         	ArrayList<ProductionRule> prodRules = this.getProductionRules(lineRule);
         	prRules.addAll(prodRules);
         }
-    	
+        
     	HashMap<Nonterminal, ArrayList<ProductionRule>> map = this.hashRulesByNonterminal(prRules);
     	ArrayList<Nonterminal> keyList = new ArrayList<Nonterminal>();
     	keyList.addAll(map.keySet());
@@ -387,7 +403,7 @@ public class ParserGenerator {
     	boolean hasLeftRecursion = false;
 		for(ProductionRule pr : matchingRules)//clone so there's no iterator mishap
 		{
-                    System.out.println(pr);
+                    //System.out.println(pr);
                     Symbol startingSymbol = pr.getRule().get(0);
                     if(startingSymbol.equals(key)) //this means that we are dealing with a rule that has Left
                     {												//recursion	
@@ -418,21 +434,30 @@ public class ParserGenerator {
         {
            rightSyms = gScan.next();
            rSideSyms = new ArrayList<Symbol>();
-           symScan = new Scanner(rightSyms);
-           //traverses symbols
-           while(symScan.hasNext())
+           // special case: the rule is blank space. This means epsilon
+           if (rightSyms.trim().equals(""))
            {
-               sym = symScan.next().trim();
-              
-               //checks to see if the symbol is a nonterminal or a terminal then adds
-               //that symbol to the right side of the production rule
-               if(tokenList.contains((new Symbol(sym))))
+               rSideSyms.add(new Token("EPSILON"));
+           }
+           // otherwise, the rule is broken down into its individual symbols
+           else
+           {
+               symScan = new Scanner(rightSyms);
+               //traverses symbols
+               while(symScan.hasNext())
                {
-                 rSideSyms.add(new Token(sym));
-               }
-               else if(nonterminalList.contains((new Symbol(sym))))
-               {
-                   rSideSyms.add(new Nonterminal(sym));
+                   sym = symScan.next().trim();
+                   //System.out.println("sym = " + sym);
+                   //checks to see if the symbol is a nonterminal or a terminal then adds
+                   //that symbol to the right side of the production rule
+                   if(tokenList.contains((new Symbol(sym))))
+                   {
+                     rSideSyms.add(new Token(sym));
+                   }
+                   else if(nonterminalList.contains((new Symbol(sym))))
+                   {
+                       rSideSyms.add(new Nonterminal(sym));
+                   }
                }
            }
            productions.add(new ProductionRule(nonTerm,rSideSyms));
