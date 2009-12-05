@@ -64,7 +64,6 @@ public class ParserGenerator {
         {
             tokenList.add(new Token(genScanner.next()));
         }
-        //test
         System.out.println("token list = " + tokenList);
         
         nonTerms = grFileBuf.readLine();       //nonterminals
@@ -77,7 +76,7 @@ public class ParserGenerator {
         {
             nonterminalList.add(new Nonterminal(genScanner.next()));
         }
-        //test
+      
         System.out.println("List of nonterminals = "+ nonterminalList);
         
         grule = grFileBuf.readLine();
@@ -98,12 +97,13 @@ public class ParserGenerator {
         	
         	if(!grule.startsWith("%"))
         	{
-        		gRules.add(grule);
+                    //insert Epsilon token into the right places in the grammar rule
+                    //and add the grammar rule to the list
+        		gRules.add(insertEpsilon(grule));
         	}
             
         }while((grule = grFileBuf.readLine()) != null);
         
-        //System.out.println(gRules);
         
         System.out.println("... after removing left recursion, we have:");
         allRules = removeLeftRecursion(gRules); //RemoveLeftRecursion returns the rules hashed against their nonterminals.    
@@ -119,7 +119,7 @@ public class ParserGenerator {
         // we use allRules to create "rules", which is a straight-up list of rules
         ArrayList<Nonterminal> keyList = new ArrayList<Nonterminal>();
         keyList.addAll(allRules.keySet());
-        //System.out.println("keyList = " + keyList);
+
         for (Nonterminal key : keyList) {
             rules.addAll(allRules.get(key));
             
@@ -128,7 +128,25 @@ public class ParserGenerator {
         }
        
     }
-    
+    public String insertEpsilon(String rule)
+    {
+        //if the string ends in a space followed by no other chars
+        //insert Epsilon ot the end
+        if(rule.matches(".*[\\s.*$]"))
+        {
+            return rule = rule + "EPSILON";
+        }
+        else if(rule.matches(".*: \\|.*")) //if a rule has a : followed by an | insertEpsilon afer the space
+        {
+            return rule.replaceAll(": \\|", ": EPSILON \\|");
+        }
+        else if(rule.matches(".*\\| \\|.*"))
+        {
+            return rule.replaceAll("\\| \\|", "\\| EPSILON \\|");
+        }
+        
+        return rule;
+    }
     ///Takes in the Hashed Production Rules that have had Immediate Left Recursion removed
     private HashMap<Nonterminal, ArrayList<ProductionRule>> removeCommonPrefix(
 			HashMap<Nonterminal, ArrayList<ProductionRule>> map) {
@@ -256,8 +274,6 @@ public class ParserGenerator {
     
     private void getCommonPrefix(ArrayList<Symbol> commonPrefix, ArrayList<Symbol> rule1, ArrayList<Symbol> rule2){
     	
-        //System.out.println("rule1 = " + rule1);
-        //System.out.println("rule2 = " + rule2);
     	if(rule1.size() == 0 || rule2.size() == 0 || rule1.equals(rule2) ){
     		return;
     	}
@@ -373,10 +389,8 @@ public class ParserGenerator {
 		{
                     System.out.println(pr);
                     Symbol startingSymbol = pr.getRule().get(0);
-                    //System.out.println("startingSymbol = " + startingSymbol);
                     if(startingSymbol.equals(key)) //this means that we are dealing with a rule that has Left
-                    {												//recursion
-                        //System.out.println(pr);	
+                    {												//recursion	
                         hasLeftRecursion = true;            		
                     }
 		}
@@ -479,7 +493,6 @@ public class ParserGenerator {
         for (Nonterminal N : nonterminalList) {
             ArrayList<Token> temp = first(N);
             firstSetsLocal.put(N, temp);
-            //System.out.println("Added first set: " + N + " -> " + temp);
         }
         return firstSetsLocal;
     }
@@ -533,7 +546,6 @@ public class ParserGenerator {
      * @return
      */
     private ArrayList<Token> first(ArrayList<Symbol> alpha) {
-        //System.out.println("first(" + alpha + ") was called");
         
         if (alpha.size() == 0) {   
             ArrayList<Token> temp = new ArrayList<Token>();
@@ -555,7 +567,6 @@ public class ParserGenerator {
            // if it's a nonterminal, it's already computed and cached
            if (nextSymbol instanceof Nonterminal) {
                nextFirstSet = firstSets.get((Nonterminal)nextSymbol);
-               //System.out.println("nextFirstSet = " + nextFirstSet);
            }
            // if it's a terminal, it will be computed instantly anyway
            else
