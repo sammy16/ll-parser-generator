@@ -61,7 +61,8 @@ public class ParsingTable {
                     numRules++;
                     if(P.getRule().toString().length()*numRules > largestEntrySize)
                     {
-                      largestEntrySize = P.getRule().toString().length()*numRules;   
+                      largestEntrySize = P.toString().length()*numRules;  
+                      System.out.println(P.toString());
                     }
                     //test
                     // System.out.println("added " + P.getNonterminal()+"-> "+P.getRule());
@@ -93,7 +94,8 @@ public class ParsingTable {
     public void printTable()
     {
         String nontermHeader,terminalHeader,rowRule;
-        largestEntrySize = largestEntrySize + 2*columns-2;
+        largestEntrySize = largestEntrySize + 2*(columns-3);
+         System.out.println("NONTERMInal size "+largestEntrySize);
         //print the row of terminals
         System.out.print(String.format("%1$-" + largestNonterminal + "s"," ") + "  ");
         for(int y=0;y<columns;y++)
