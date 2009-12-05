@@ -4,6 +4,7 @@
  */
 
 package parser3240;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -14,6 +15,25 @@ import java.util.*;
 // e.g. $ java Main.java tiny.gram adder.tiny
 public class Main {
 
+	private static ArrayList<String> GetTestProgTokens(){
+		//a run of the scanner
+    	String progLoc = "C:\\test-prog.txt";
+    	TINYLexer scanner = TINYLexer.GetLexer(progLoc);
+    	
+    	//the tokens gotten from the program.
+    	//reset the scanner
+    	scanner.yypushback(scanner.yylength());
+    	ArrayList<String> programTokens = new ArrayList<String>();
+    	  do {
+              try {
+				programTokens.add(scanner.yylex());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	  } while (!scanner.isZzAtEOF());
+    	  return programTokens;
+	}
     /**
      * @param args the command line arguments
      */
@@ -24,17 +44,8 @@ public class Main {
     	// a scanner
     	// JLex.Main.main(arg)
     	
-    	//a run of the scanner
-    	String progLoc = "C:\\test-prog.txt";
-    	TINYLexer scanner = TINYLexer.GetLexer(progLoc);
-    	
-    	//the tokens gotten from the program.
-    	//reset the scanner
-    	scanner.yypushback(scanner.yylength());
-    	ArrayList<String> programTokens = new ArrayList<String>();
-    	  do {
-              programTokens.add(scanner.yylex());
-            } while (!scanner.isZzAtEOF());
+    	ArrayList<String> programTokens = Main.GetTestProgTokens();
+          
     
         
         ParserGenerator parserGen = new ParserGenerator();
