@@ -12,10 +12,18 @@ import java.util.*;
  * @author mpn
  */
 public class Main {
-
+        private static final boolean RUN_PARSER_DRIVER = false;
+        
 	private static ArrayList<String> GetTestProgTokens(){
-		//a run of the scanner
-    	String progLoc = "C:\\test-prog3.txt";
+	//a run of the scanner
+            
+        // !!! ENTRY POINT 1 !!!
+    	//String progLoc = "C:\\simple.tiny";
+        String progLoc = "C:\\arithmetic.tiny";
+        //String progLoc = "C:\\paren_mismatch.tiny";
+        
+        
+        
     	TINYLexer scanner = TINYLexer.GetLexer(progLoc);
     	
     	//the tokens gotten from the program.
@@ -41,21 +49,22 @@ public class Main {
     	// This is the Main method of JLex which allows us to generate 
     	// a scanner
     	// JLex.Main.main(arg)
-    	
-    	ArrayList<String> programTokens = Main.GetTestProgTokens();
-          
-        System.out.println("programTokens = " + programTokens);
         
-        ParserGenerator parserGen = new ParserGenerator();
-      
         ArrayList<Token> tokens = new ArrayList<Token>();
-        
-        for (String s : programTokens) {
-            if (s == null)
-                tokens.add(new Token("$"));
-            else
-                tokens.add(new Token(s));
+        if (RUN_PARSER_DRIVER) {
+            ArrayList<String> programTokens = Main.GetTestProgTokens();
+          
+            System.out.println("Program Tokens = " + programTokens);
+
+            for (String s : programTokens) {
+                if (s == null)
+                    tokens.add(new Token("$"));
+                else
+                    tokens.add(new Token(s));
+            }
         }
+        // the following is a valid token sequence for
+        // the "final grammar.ll1" grammar. Uncomment to use.
         //package body IDENT is separate SEMICOLON $
         /**tokens.add(new Token("package"));
         tokens.add(new Token("body"));
@@ -64,26 +73,25 @@ public class Main {
         tokens.add(new Token("separate"));
         tokens.add(new Token("SEMICOLON"));
         tokens.add(new Token("$"));**/
-        //tokens = lexer.process(fileContents);
         
-        // sample tiny program token stream
-        // begin ID := ID ; end $
-        /**tokens.add(new Token("begin"));
-        tokens.add(new Token("ID"));
-        tokens.add(new Token(":="));
-        tokens.add(new Token("ID"));
-        tokens.add(new Token(";"));
-        tokens.add(new Token("end"));
-        tokens.add(new Token("$"));**/
+        ParserGenerator parserGen = new ParserGenerator();
         
-        String grammar = "";
-        //parserGen.feed("C:\\final.ll1");
+        // !!! ENTRY POINT 2 !!!
+        //parserGen.feed("C:\\final grammar.ll1");
         //parserGen.feed("C:\\louden_pg178.ll1");
-        //parserGen.feed("C:\\tiny.ll1");
+        //parserGen.feed("C:\\louden_pg179.ll1");
+        //parserGen.feed("C:\\leftrec.ll1");
+        //parserGen.feed("C:\\leftfac.ll1");
         parserGen.feed("C:\\tiny_grammar.ll1");
+        
+        
         ParsingTable parseTable = parserGen.buildParsingTable();
         //parseTable.printTable();
         parseTable.printHTMLTable();
+        
+        
+        if (!RUN_PARSER_DRIVER)
+            return;
         
         // parser driver
         // see Pg 155 of Louden
@@ -92,11 +100,10 @@ public class Main {
         stack.push(new Token("$"));
         // push start symbol onto the stack
         stack.push(new Nonterminal(parserGen.getStartSymbol().getName()));
-        int dep = 0;
+
         while (!stack.peek().equals(new Token("$")) && i < tokens.size()) {
             System.out.println("Current token: " + tokens.get(i));
-            dep++;
-            //if (dep >= 10) break;
+
             System.out.println("stack: " + stack);
             // case 1: top of stack is a token
             if (stack.peek() instanceof Token) {
