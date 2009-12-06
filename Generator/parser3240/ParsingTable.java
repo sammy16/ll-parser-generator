@@ -20,6 +20,9 @@ public class ParsingTable {
     //initialize number of rows and columns in the table to the number of nonterminals and terminals
     public ParsingTable(int numTokens, int numNonterminals,ArrayList<Token> myTokens,ArrayList<Nonterminal> myNonTerms)
     {
+        // we have to manually add the $ "token"
+        numTokens = numTokens+1;
+        myTokens.add(new Token("$"));
         rows = numNonterminals;
         columns = numTokens;
         tokens = myTokens;
@@ -60,7 +63,7 @@ public class ParsingTable {
                     if(P.getRule().toString().length()*numRules > largestEntrySize)
                     {
                       largestEntrySize = P.toString().length()*numRules;  
-                      System.out.println(P.toString());
+                      //System.out.println(P.toString());
                     }
                 }
             }
@@ -118,37 +121,40 @@ public class ParsingTable {
 
     public void printHTMLTable()
     {
-        String html = "<table border=1>";
-        html += "<tr><td>M[N,T]</td>";
-        
-        for (Token T : tokens) {
-            html += "<td>" + T + "</td>";
-        }
-        html += "</tr>";
-        
-        for(int x=0;x<rows;x++) {
-            html += "<tr>";
-            //first entry in the row is the row's nonterminal
-            html += "<td>" + fixHTML(nonTerms.get(x).toString()) + "</td>";
-            
-            
-            for(int y=0;y<columns;y++) {
-                //print row of rules in coresponding location
-                String rowRule = table[y][x].get(table[y][x].keySet().toArray()[0]).toString();
-                html += "<td>" + fixHTML(rowRule) + "</td>";
-                
-            }
-            html += "</tr>";
-        }
-        html += "</table>";
+        System.out.println();
+        System.out.println("Writing parse table to file...");
         try {
-            FileWriter fw = new FileWriter(new File("ptable.html"));
-            fw.write(html);
-            System.out.println("The parse table has been written to ptable.html in the project directory.");
+            BufferedWriter html = new BufferedWriter(new FileWriter(new File("ptable.html")));
+            html.write("<table border=1>");
+            html.write("<tr><td>M[N,T]</td>");
+
+            for (Token T : tokens) {
+                html.write("<td>" + T + "</td>");
+            }
+            html.write("</tr>");
+
+            for(int x=0;x<rows;x++) {
+                html.write("<tr>");
+                //first entry in the row is the row's nonterminal
+                html.write("<td>" + fixHTML(nonTerms.get(x).toString()) + "</td>");
+
+
+                for(int y=0;y<columns;y++) {
+                    //print row of rules in coresponding location
+                    String rowRule = table[y][x].get(table[y][x].keySet().toArray()[0]).toString();
+                    html.write("<td>" + fixHTML(rowRule) + "</td>");
+
+                }
+                html.write("</tr>");
+            }
+            html.write("</table>");
+            html.close();
+            System.out.println("Success! The parse table has been written to ptable.html in the project directory.");
+        //System.out.println(html);
         } catch (IOException e) {
             System.out.println("File writing failed. Please make sure you have write access to the project directory.");
         }
-        //System.out.print(html);
+        System.out.println();
     }
     
     // nonterminals like "<exp>" look like HTML tags, so we have to replace

@@ -64,12 +64,12 @@ public class ParserGenerator {
         {
             tokenList.add(new Token(genScanner.next()));
         }
-        System.out.println("token list = " + tokenList);
+        System.out.println("Token List = " + tokenList);
         
         // consume possible blank line
         nonTerms = grFileBuf.readLine();
         
-        if (nonTerms.equals(""))
+        if (nonTerms.trim().equals(""))
             nonTerms = grFileBuf.readLine();       //nonterminals
         genScanner = new Scanner(nonTerms);
         
@@ -81,16 +81,16 @@ public class ParserGenerator {
             nonterminalList.add(new Nonterminal(genScanner.next()));
         }
       
-        System.out.println("List of nonterminals = "+ nonterminalList);
+        System.out.println("List of Nonterminals = "+ nonterminalList);
         
         // consume possible blank line
         grule = grFileBuf.readLine();
         
-        if (grule.equals(""))
+        if (grule.trim().equals(""))
             grule = grFileBuf.readLine();
         
         startSymbol = new Symbol(grule.substring(grule.indexOf(" ")+1,grule.indexOf('>')+1));
-        System.out.println("Start symbol = "+ startSymbol);
+        System.out.println("Start Symbol = "+ startSymbol);
         
         //System.out.println("!!!" + getProductionRules("<compilation> : IDENT | "));
         
@@ -121,14 +121,18 @@ public class ParserGenerator {
         //for (String gr : gRules)
         //    System.out.println(gr);
         
+        System.out.println();
         System.out.println("... after removing left recursion, we have:");
         allRules = removeLeftRecursion(gRules); //RemoveLeftRecursion returns the rules hashed against their nonterminals.    
-        //printGrammar();
+        printGrammar();
+        System.out.println();
         
         //once left recursion has been removed from the grammar then common prefix must be fixed
+        System.out.println();
         allRules = removeCommonPrefix(allRules);
         System.out.println("... and, finally, after removing common prefix:");
-        //printGrammar();
+        printGrammar();
+        System.out.println();
         
         // okay, now all our rules are fixed.
         // allRules is the hashmap from nonterminal to a list of production rules
@@ -172,7 +176,7 @@ public class ParserGenerator {
     	ArrayList<Nonterminal> keyList = new ArrayList<Nonterminal>();
     	keyList.addAll(map.keySet());
     	for (Nonterminal key : keyList )
-    	{	
+    	{
     		ArrayList<ProductionRule> matchingRules = map.get(key);
     		ArrayList<Symbol> cp = new ArrayList<Symbol>();
     		ArrayList<ProductionRule> commonPrefRules = getMaximalCommonPrefixProductionRules(matchingRules, cp);
@@ -415,38 +419,37 @@ public class ParserGenerator {
     
     
 
-	//Takes a grammar rule in the for of a string as a parameter and produces/returns a list of production rules
+//Takes a grammar rule in the for of a string as a parameter and produces/returns a list of production rules
     public ArrayList<ProductionRule> getProductionRules(String grammarRule)
     {
-        Scanner gScan = new Scanner(grammarRule).useDelimiter(":");
-        Scanner symScan;
-        Nonterminal nonTerm; //the symbol on the left side of the arrow for the rule
-        String rightSyms;
-        String sym;
-        nonTerm = new Nonterminal(gScan.next());  //get the nonterminal on left side of the arrow
-        ArrayList<Symbol> rSideSyms;     //list of symbols that go on the right side of the production rule
         ArrayList<ProductionRule> productions = new ArrayList<ProductionRule>();
-        gScan = new Scanner(gScan.next());
+        
+        int index = grammarRule.indexOf(":");
+        String leftSide = grammarRule.substring(0, index);
+        Nonterminal nonTerm = new Nonterminal(leftSide.trim());  //get the nonterminal on left side of the arrow
+        
+        String rightSide = grammarRule.substring(index+1);
         //grabs the sections of the rule bordered by "|" and takes those symbols to create a production rule
-        //Example grammar rule = <S> -> <T> d | b | c  the first production rule made will be <S> -> <T> d
-        gScan.useDelimiter("\\|");
-        while(gScan.hasNext())
+        //Example grammar rule = <S> : <T> d | b | c  the first production rule made will be <S> -> <T> d
+        //gScan.useDelimiter("\\|");
+        String[] indvRules = rightSide.split("\\|", -1);
+        for (String s : indvRules)
         {
-           rightSyms = gScan.next();
-           rSideSyms = new ArrayList<Symbol>();
+           String rightSyms = s.trim();
+           ArrayList<Symbol> rSideSyms = new ArrayList<Symbol>();
            // special case: the rule is blank space. This means epsilon
-           if (rightSyms.trim().equals(""))
+           if (rightSyms.equals(""))
            {
                rSideSyms.add(new Token("EPSILON"));
            }
            // otherwise, the rule is broken down into its individual symbols
            else
            {
-               symScan = new Scanner(rightSyms);
+               Scanner symScan = new Scanner(rightSyms);
                //traverses symbols
                while(symScan.hasNext())
                {
-                   sym = symScan.next().trim();
+                   String sym = symScan.next().trim();
                    //System.out.println("sym = " + sym);
                    //checks to see if the symbol is a nonterminal or a terminal then adds
                    //that symbol to the right side of the production rule
@@ -462,7 +465,7 @@ public class ParserGenerator {
            }
            productions.add(new ProductionRule(nonTerm,rSideSyms));
         }
-        
+        //System.out.println("getProdRules(" + grammarRule + ") = " + productions);
         return productions;
     }
 
@@ -484,11 +487,17 @@ public class ParserGenerator {
         for (Nonterminal N : firstSets.keySet())
             System.out.println("first(" + N + ") = " + firstSets.get(N));
         
+        System.out.println();
+        
         for (Nonterminal N : followSets.keySet())
             System.out.println("follow(" + N + ") = " + followSets.get(N));
         
+        System.out.println();
+        
         for (ProductionRule R : predictSets.keySet())
             System.out.println("predict(" + R + ") = " + predictSets.get(R));
+        
+        System.out.println();
         
         // initialize new ParsingTable
         LL1table = new ParsingTable(tokenList.size(),nonterminalList.size(),tokenList,nonterminalList);
@@ -578,6 +587,13 @@ public class ParserGenerator {
             return temp;
         }
        
+        // special case: alpha is a set containing only epsilon
+        if (alpha.size() == 1 && alpha.contains(new Token("EPSILON"))) {
+            ArrayList<Token> temp = new ArrayList<Token>();
+            temp.add(new Token("EPSILON"));
+            return temp;
+        }
+        
        // we use a set so that duplicates are automatically ignored
        HashSet<Token> ret = new HashSet<Token>();
        ArrayList<Token> firstAlpha = first(alpha.get(0));
