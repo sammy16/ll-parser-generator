@@ -86,6 +86,9 @@ public class Main {
         
         
         ParsingTable parseTable = parserGen.buildParsingTable();
+        
+        // Nishad: Uncomment this line to get a text table printout
+        // Warning, it can be hard to read for large output.
         //parseTable.printTable();
         parseTable.printHTMLTable();
         
